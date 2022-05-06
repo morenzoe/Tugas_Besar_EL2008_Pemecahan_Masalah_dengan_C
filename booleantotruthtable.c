@@ -90,9 +90,12 @@ int *truthTable(int var, int fx)
 int main()
 {
     int var = 3; // jumlah variabel
-    int *matVar = malloc(var*sizeof(int)); // matriks variabel
+    int *matVar = malloc(var*sizeof(int)); // array variabel
+    int *hasil = malloc(pow(2,var)*sizeof(int)); // array hasil persamaan boolean
     
     // membuat truth table
+    printf("desimal\tbiner\thasil\n");
+    
     int i,j;
     for(i=0; i<pow(2,var); ++i){
         // konversi desimal ke biner
@@ -102,9 +105,24 @@ int main()
         for(j=0; j<var; ++j){
             printf("%d", matVar[j]);
         }
+        
+        // menghitung hasil persamaan boolean
+        int fx = (matVar[0])&&(!(matVar[1])||(matVar[2]));
+        
+        // menampilkan hasil persamaan boolean
+        printf("\t%d", fx);
+        
+        // menyimpan hasil persamaan boolean
+        hasil[i] = fx;
+        
         printf("\n");
     }
     
+    // menampilkan array hasil
+    printf("\nhasil\n");
+    for(i=0; i<pow(2,var); ++i){
+        printf("%d\n", hasil[i]);
+    }
 
     return 0;
 }
