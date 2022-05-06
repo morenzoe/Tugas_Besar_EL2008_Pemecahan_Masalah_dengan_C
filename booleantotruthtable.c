@@ -54,6 +54,7 @@ int *decToBinary(int decimal, int var)
 int *truthTable(int var, int fx)
 {
     // Kamus
+    int f = fx;
     int i,j;                        // Variabel indeks
     int comb = pow(2, var);         // Jumlah kombinasi biner yang dapat dibentuk
     int *temp;                      // Penampungan sementara untuk array biner
@@ -81,8 +82,7 @@ int *truthTable(int var, int fx)
             // Inputan hasil konversi biner ke dalam matrix biner
             matrix[i][j] = *(temp+j);
         }
-        // Overwrite array temp
-        temp = 0;
+        arr[i] = f;
     }
 
     // Debugging
@@ -97,22 +97,16 @@ int *truthTable(int var, int fx)
     }
     */
 
-    // Memasukkan matrix[i] ke dalam fungsi fx, kemudian dimasukkan ke dalam arr sebagai hasil dari truth table
-    for (i=0; i<comb; i++)
-    {
-        arr[i] = fx;
-    }
-
     // Debugging
 
-    printf("\n");
     for (i=0; i<comb; i++)
     {
-        printf("%d", arr[i]);
+        printf("%d\n", arr[i]);
     }
 
 
     return arr;
+    // Untuk mengambil hasil return array, gunakan pointer (misalkan *p) kemudian declare sebagai p = truthTable(var, fx)
 }
 
 // Fungsi utama
