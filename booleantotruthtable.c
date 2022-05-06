@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include <stdbool.h>
 #include <math.h>
 
@@ -6,24 +7,27 @@
 #define MAX 255                     // Asumsikan maksimal jumlah variabel adalah 8, yaitu berjumlah 8 bit
 
 // Fungsi untuk mengkonversi bilangan desimal menjadi biner, digunakan untuk 0-(pow(2, var)-1) dalam truth table
-int *decToBinary(int decimal, int var)
+void decToBinary(int decimal, int var, int *matVar)
 {
     // Kamus
-    static int binary[MAX_LEN];     // Penampungan bilangan biner
-    int i, a[var];                  // Indeks dan penampungan hasil pembagian dan modulo desimal
+    // static int binary[MAX_LEN];     // Penampungan bilangan biner
+    int i; //, a[var];                  // Indeks dan penampungan hasil pembagian dan modulo desimal
+    /*
     // Inisialisasi array a
     for (i=0; i<var; i++)
     {
         a[i] = 0;
     }
+    */
 
     // Modulo desimal oleh 2 karena biner berbasis 2
-    for(i=0; decimal>0; i++)
+    for(i=var-1; i>=0; i--)
     {
-        a[i] = decimal%2;
+        matVar[i] = decimal%2;
         decimal = decimal/2;        // Sisa pembagian kemudian akan dimodulo 2 lagi terus menerus sampai bernilai nol
     }
-
+    
+    /*
     // Jika desimal bernilai 0, harus diinisialisasi manual supaya isi array binary ada nilainya
     if (decimal == 0)
     {
@@ -32,12 +36,14 @@ int *decToBinary(int decimal, int var)
             binary[i] = 0;
         }
     }
+    
 
     // Karena pembagian dilakukan dari belakang, array a harus dibalik urutannya untuk mendapatkan urutan biner yang benar
     for(i=i-1;i>=0;i--)
     {
         binary[var-i-1] = a[i];
     }
+    */
 
     // Debugging
     /*
@@ -47,9 +53,10 @@ int *decToBinary(int decimal, int var)
     }
     */
 
-    return binary;
+    return;
 }
 
+/*
 // Fungsi membentuk truth table template
 int *truthTable(int var, int fx)
 {
@@ -63,14 +70,14 @@ int *truthTable(int var, int fx)
     static int arr[MAX];            // Array hasil truth table
 
     // Debugging
-    /*
+    
    printf("%d\n", comb);
 
     for (int i=0; i<comb; i++)
     {
         printf("%d\n", arr[i]);
     }
-    */
+    
 
     // Pengulangan konversi decToBinary dengan nilai i = 0 sampai i = comb-1
     for (i=0; i<comb; i++)
@@ -86,7 +93,7 @@ int *truthTable(int var, int fx)
     }
 
     // Debugging
-    /*
+    
     for (i=0; i<comb; i++)
     {
         for (j=0; j<var; j++)
@@ -95,7 +102,7 @@ int *truthTable(int var, int fx)
         }
         printf("\n");
     }
-    */
+    
 
     // Debugging
 
@@ -108,22 +115,37 @@ int *truthTable(int var, int fx)
     return arr;
     // Untuk mengambil hasil return array, gunakan pointer (misalkan *p) kemudian declare sebagai p = truthTable(var, fx)
 }
+*/
 
 // Fungsi utama
 int main()
 {
     // Kamus
     // Input user untuk fungsi ini
-    int **matrix;
-    int i;
+    // int i;
     // Boolean algebra equation, fx = w(x'+y)
-    int fx = (matrix[i][0])&&(!(matrix[i][1])||(matrix[i][2]));
+    // int fx = (matrix[i][0])&&(!(matrix[i][1])||(matrix[i][2]));
     int var = 3;                     // Jumlah variabel yang digunakan
-
+    int *matVar = malloc(var*sizeof(int));  // matriks variabel
+    
+    // decToBinary test
+    int i, j;
+    printf("matVar\n");
+    for(i=0; i<pow(2,var); ++i){
+        printf("%d:\t", i);
+        decToBinary(i, var, matVar);
+        for(j=0; j<var; ++j){
+            printf("%d ", matVar[j]);
+        }
+        printf("\n");
+    }
+    
+    /*
     // Lokal variable
     int *p;
 
     p = truthTable(var, fx);
+    */
 
     return 0;
 }
