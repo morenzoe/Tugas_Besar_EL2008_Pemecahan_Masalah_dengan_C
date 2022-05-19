@@ -12,6 +12,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <math.h>
 
 typedef struct Node{
     int* mintermDec;    // minterm dalam desimal
@@ -620,8 +621,14 @@ void printResult(LinkedList* list, int numVariables){
 int main()
 {
     int i;
+    int j;
     int numVariables;           // variabel penyimpan jumlah variabel
-    int numMinterms;            // variabel penyimpan jumlah minterm
+    int numMinterms=0;            // variabel penyimpan jumlah minterm
+    
+    int* binary;                // array hasil konversi desimal ke biner
+    int result;                 // variabel penyimpan input hasil truth table
+    int* arrayResult;           // array penyimpan semua input hasil truth table
+    
     int minterm;                // variabel penyimpan minterm input
     int* arrayMinterm;          // array penyimpan semua minterm input
     int numPrimeImplicant;      // variabel penyimpan jumlah prime implicant
@@ -630,26 +637,66 @@ int main()
     // Meminta input data
     printf("\nEnter the number of variables : ");       
     scanf("%d",&numVariables);
-    printf("\nEnter the number of numMinterms : ");
-    scanf("%d",&numMinterms);
+    
+    // Mengalokasikan memori array biner
+    binary = malloc(numVariables*sizeof(int));
+    
+    // Mengalokasikan memori array result
+    arrayResult = malloc(pow(2,numVariables)*sizeof(int));
     
     // Membuat linked list untuk menyimpan minterm
     LinkedList* mintermList = (LinkedList*) malloc(sizeof(LinkedList));
     mintermList->head = NULL;
     
+    // Menampilkan judul tabel
+    // menampilkan variabel
+    for(i=0; i<numVariables; ++i){
+        printf("%c ", (char)91-(numVariables-i));
+    }
+    printf("| f");
+    printf("\n");
+    
+    // menampilkan pembatas
+    for(i=0; i<numVariables*2+3; ++i){
+        printf("=");
+    }
+    printf("\n");
+    
+    for(i=0; i<pow(2,numVariables); ++i){
+        int minterm = i;
+        for(j=numVariables-1; j>=0; --j){
+            binary[j] = minterm%2;
+            minterm = minterm/2;        
+        }
+        
+        for(j=0; j<numVariables; ++j){
+            printf("%d ", binary[j]);
+        }
+        printf("| ");
+        
+        scanf("%d", &result);
+        arrayResult[i] = result;
+        
+        if(result){
+            numMinterms += 1;
+        }
+    }
+    
     // Meminta input minterm dalam desimal
     // asumsi input terurut dari minterm terkecil
     arrayMinterm =  malloc(numMinterms*sizeof(int));
-    for(i=0; i<numMinterms; ++i){
-        printf("minterm ke-%d: ", i+1);
-        scanf("%d", &minterm);
-        
-        // Menyimpan minterm ke array
-        arrayMinterm[i] = minterm;
-        
-        // Menyimpan minterm ke mintermList
-        saveMinterm(mintermList, numMinterms, numVariables, minterm);
-        
+    j =0;
+    for(i=0; i<pow(2,numVariables); ++i){
+        if(arrayResult[i]){
+            
+            // Menyimpan minterm ke array
+            arrayMinterm[j] = i;
+            
+            // Menyimpan minterm ke mintermList
+            saveMinterm(mintermList, numMinterms, numVariables, i);
+            
+            j += 1;
+        }
     }
     
     // debugging
