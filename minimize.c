@@ -87,6 +87,50 @@ void saveMinterm(LinkedList* list, int numMinterms, int numVariables, int minter
     return;
 }
 
+void groupByOnes(LinkedList* list, int numVariables){
+    int i;
+    int temp;   // variabel sementara untuk pertukaran
+    
+    // Membuat pointer sementara untuk menyusuri linked list
+    Node* temp1 = list->head;
+    Node* temp2;
+    
+    // Menyusuri linked list
+    while(temp1!=NULL){
+        // Membandingkan temp1 dengan semua node setelahnya
+        temp2 = temp1->next;
+        while(temp2!=NULL){
+            // Menukar data kedua node
+            if((temp1->numOnes)>(temp2->numOnes)){
+                // data minterm dalam desimal
+                temp = temp1->mintermDec[0];
+                temp1->mintermDec[0] = temp2->mintermDec[0];
+                temp2->mintermDec[0] = temp;
+                
+                // data minterm dalam biner
+                for(i=0; i<numVariables; ++i){
+                    temp = temp1->mintermBin[i];
+                    temp1->mintermBin[i] = temp2->mintermBin[i];
+                    temp2->mintermBin[i] = temp;
+                }
+                
+                // data jumlah bit 1
+                temp = temp1->numOnes;
+                temp1->numOnes = temp2->numOnes;
+                temp2->numOnes = temp;
+            }
+            
+            // Melanjutkan perbandingan ke node berikutnya
+            temp2 = temp2->next;
+        }
+        
+        // Melanjutkan perbandingan ke node berikutnya
+        temp1 = temp1->next;
+    }
+    
+    return;
+}
+
 void printLinkedList(LinkedList* list, int numVariables) {
     int i;
     
@@ -141,6 +185,14 @@ int main()
     }
     
     // debugging
+    printf("Setelah saveMinterm\n");
+    printLinkedList(mintermList, numVariables);
+    
+    // Mengurutkan mintermList berdasarkan jumlah bit 1 minterm dalam biner
+    groupByOnes(mintermList, numVariables);
+    
+    // debugging
+    printf("Setelah groupByOnes\n");
     printLinkedList(mintermList, numVariables);
 
     return 0;
