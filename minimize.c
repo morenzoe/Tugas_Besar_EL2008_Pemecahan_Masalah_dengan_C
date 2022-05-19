@@ -689,11 +689,14 @@ int main()
     }
     printf("\n");
     
+    // Jika minterm sebanyak baris truth table
     if(numMinterms==pow(2,numVariables)){
         printf("Hasil Akhir Penyederhanaan\n");
         printf("1\n");
         
         return 0;
+        
+    // Jika tidak ada minterm
     } else if(numMinterms==0){
         printf("Hasil Akhir Penyederhanaan\n");
         printf("0\n");
