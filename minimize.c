@@ -1,7 +1,7 @@
 /*EL2008 Pemecahan Masalah dengan C 2021/2022
 *Tugas              : Tugas Besar 2022
 *Kelompok           : 2
-*Hari dan Tanggal   : Senin, 2 Mei 2022
+*Hari dan Tanggal   : Kamis, 19 Mei 2022
 *Dosen              : 
 *Nama File          : minimize.c
 *Deskripsi          : Program untuk minimisasi logic dengan
@@ -40,6 +40,24 @@ int countOnes(Node* node, int numVariables){
     return sum;
 }
 
+void insertNode(LinkedList* list, Node* node){
+    // Jika linked list kosong, assign node sebagai head
+    if(list->head==NULL){
+        list->head = node;
+    } else{
+        // Membuat pointer sementara untuk menyusuri linked list
+        struct Node* temp = list->head;
+        
+        // Menyusuri linked list hingga node terakhir
+        while(temp->next!=NULL){
+            temp = temp->next;
+        }
+        
+        // Menghubungkan node terakhir dengan node baru
+        temp->next = node;
+    }  
+}
+
 void saveMinterm(LinkedList* list, int numMinterms, int numVariables, int minterm){
     int i;
     
@@ -50,6 +68,10 @@ void saveMinterm(LinkedList* list, int numMinterms, int numVariables, int minter
     // data minterm dalam desimal
     new->mintermDec = malloc(numMinterms*sizeof(int));
     new->mintermDec[0] = minterm;
+    // Menginisialisasi sisa array minterm dengan -1
+    for(i=1; i<numMinterms; ++i){
+        new->mintermDec[i] = -1;
+    }
     
     // data minterm dalam biner
     new->mintermBin = malloc(numVariables*sizeof(int));
@@ -68,21 +90,7 @@ void saveMinterm(LinkedList* list, int numMinterms, int numVariables, int minter
     // data node berikutnya
     new->next = NULL;
     
-    // Jika linked list kosong, assign new sebagai head
-    if(list->head==NULL){
-        list->head = new;
-    } else{
-        // Membuat pointer sementara untuk menyusuri linked list
-        struct Node* temp = list->head;
-        
-        // Menyusuri linked list hingga node terakhir
-        while(temp->next!=NULL){
-            temp = temp->next;
-        }
-        
-        // Menghubungkan node terakhir dengan node baru
-        temp->next = new;
-    }  
+    insertNode(list, new);
     
     return;
 }
@@ -130,7 +138,86 @@ void groupByOnes(LinkedList* list, int numVariables){
     
     return;
 }
-
+/*
+void minimize(LinkedList* list, int numVariables){
+    int i;
+    int change = 0;
+    int idxChange;
+    int sumChange;
+    
+    // Membuat linked list untuk menyimpan minterm hasil penyederhanaan
+    LinkedList* mintermGroupList = (LinkedList*) malloc(sizeof(LinkedList));
+    mintermGroupList->head = NULL;
+    
+    // Membuat pointer sementara untuk menyusuri linked list
+    Node* temp1 = list->head;
+    Node* temp2;
+    
+    // Menyusuri linked list
+    while(temp1!=NULL){      
+        // Membandingkan temp1 dengan semua node setelahnya
+        temp2 = temp1->next;
+        while(temp2!=NULL){
+            // Menginisialisasikan jumlah perubahan
+            sumChange = 0;
+            
+            // Melakukan perbandingan dua grup yang bersebelahan
+            if((temp2->numOnes)-(temp1->numOnes)==1){
+                // Melakukan perbandingan antar tiap bit
+                for(i=0; i<numVariables; ++i){
+                    // Jika 1 bit berbeda
+                    if((temp1->mintermBin[i])!=(temp2->mintermBin[i])){
+                        // Menambah jumlah perubahan bit
+                        sumChange += 1;
+                        
+                        // Menyimpan indeks perubahan bit
+                        idxChange = i;
+                    }
+                }
+            }
+            
+            // Jika hanya terdapat 1 perubahan bit
+            if(sumChange==1){
+                // Menandai ada penyederhanaan
+                change = 1;
+                
+                // Mengubah indikator minterm bukan implicant
+                temp1->isImplicant = 0;
+                temp2->isImplicant = 0;
+                
+                // Menambahkan node penyederhanaan ke linked list
+                Node* new = (Node*) malloc(sizeof(Node));
+                
+                // Mengisi data node baru
+                // data minterm dalam desimal
+                new->mintermDec = malloc(numMinterms*sizeof(int));
+                
+                // dari node pertama
+                i=0;
+                while(temp1->mintermDec[i]!=-1){
+                    new->mintermDec[i] = temp1->mintermDec[i];
+                    i += 1;
+                }
+                
+                // dari node kedua
+                i=0;
+                while(temp2->mintermDec[i]!=-1){
+                    new->mintermDec[i] = temp2->mintermDec[i];
+                    i += 1;
+                }
+            }
+            
+            // Melanjutkan perbandingan ke node berikutnya
+            temp2 = temp2->next;
+        }
+        
+        // Melanjutkan perbandingan ke node berikutnya
+        temp1 = temp1->next;
+    }
+    
+    return;
+}
+*/
 void printLinkedList(LinkedList* list, int numVariables) {
     int i;
     
