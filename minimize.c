@@ -34,7 +34,7 @@ void printLinkedList(LinkedList* list, int numVariables) {
     while (temp != NULL) {
         i = 1;
         printf("mintermDec: %d", temp->mintermDec[0]);
-        while(temp->mintermDec[i]!=-1){
+        while((temp->mintermDec[i]!=-1)&&(i<(numVariables*numVariables))){
             printf(", %d", temp->mintermDec[i]);
             i += 1;
         }
@@ -178,11 +178,15 @@ void groupByOnes(LinkedList* list, int numVariables){
 void minimize(LinkedList* list, int numMinterms, int numVariables){
     int i;
     int j;
-    int simplified = 1; // variabel penanda adanya penyederhanaan, inisialisasi 1
+    int simplified = 1; // variabel penanda adanya penyederhanaan, inisialisasi ada
     int idxChange;      // variabel indeks bit yang berubah
     int sumChange;      // variabel jumlah perubahan
     
+    int test=1;           // debugging
+    
     while(simplified){
+        // Mengasumsikan tidak ada perubahan
+        simplified = 0;
         
         // Membuat linked list untuk menyimpan minterm hasil penyederhanaan
         LinkedList* mintermGroupList = (LinkedList*) malloc(sizeof(LinkedList));
@@ -194,9 +198,15 @@ void minimize(LinkedList* list, int numMinterms, int numVariables){
         
         // Menyusuri linked list
         while(temp1!=NULL){      
+            // debugging
+            //printf("masuk while temp1\n");
+            
             // Membandingkan temp1 dengan semua node setelahnya
             temp2 = temp1->next;
             while(temp2!=NULL){
+                // debugging
+                //printf("masuk while temp2\n");
+                
                 // Menginisialisasikan jumlah perubahan
                 sumChange = 0;
                 
@@ -215,8 +225,14 @@ void minimize(LinkedList* list, int numMinterms, int numVariables){
                     }
                 }
                 
+                // debugging
+                //printf("sumChange: %d\n", sumChange);
+                
                 // Jika hanya terdapat 1 perubahan bit
                 if(sumChange==1){
+                    // debugging
+                    //printf("hanya 1 perubahan bit\n");
+                    
                     // Menandai ada penyederhanaan
                     simplified = 1;
                     
@@ -268,11 +284,7 @@ void minimize(LinkedList* list, int numMinterms, int numVariables){
                     // Menambahkan node baru ke linked list penyederhanaan
                     insertNode(mintermGroupList, new);
                 } 
-                // Jika tidak ada hanya 1 perubahan bit, tidak ada penyederhanaan
-                else{
-                    simplified = 0;
-                }
-                
+
                 // Melanjutkan perbandingan ke node berikutnya
                 temp2 = temp2->next;
             }
@@ -327,12 +339,45 @@ void minimize(LinkedList* list, int numMinterms, int numVariables){
         
         // debugging
         printf("---------------------Di dalem minimize, proses------------------------\n");
+        printf("penyederhanaan ke-%d\n", test);
+        test += 1;
+        printf("simplified: %d\n", simplified);
         printLinkedList(list, numVariables);
     }
     
     return;
 }
-
+/*
+void deleteDuplicate(LinkedList* list, int numVariables){
+    int i;
+    int same = 1;   // variabel penanda dua prime implicant sama, inisialisasi sama
+    
+    // Membuat pointer sementara untuk menyusuri linked list
+    Node* temp1 = list->head;
+    Node* temp2;
+    
+    // Menyusuri linked list
+    while(temp1!=NULL){      
+        // Membandingkan temp1 dengan semua node setelahnya
+        temp2 = temp1->next;
+        while(temp2!=NULL){
+            // Melakukan perbandingan antar tiap bit
+            for(i=0; i<numVariables; ++i){
+                // Jika terdapat bit yang berbeda
+                if((temp1->mintermBin[i])!=(temp2->mintermBin[i])){
+                    // Mengubah penanda
+                    same = 0;
+                }
+            
+            // Melanjutkan perbandingan ke node berikutnya
+            temp2 = temp2->next;
+        }
+        
+     // Melanjutkan perbandingan ke node berikutnya
+    temp1 = temp1->next;   
+    }
+}
+*/
 int main()
 {
     int i;
@@ -372,8 +417,10 @@ int main()
     printf("---------------------Setelah groupByOnes---------------------\n");
     printLinkedList(mintermList, numVariables);
     
+    // Melakukan penyederhanaan dengan Quine-McCluskey Tabular Method
     minimize(mintermList, numMinterms, numVariables);
     
+    // Menghapus prime implicant duplikat
     
     
     return 0;
