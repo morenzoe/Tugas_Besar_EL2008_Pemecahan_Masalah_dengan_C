@@ -25,9 +25,44 @@ typedef struct LinkedList{
     Node* head; // pointer ke node pertama linked list
 } LinkedList;
 
+void printLinkedList(LinkedList* list, int numVariables) {
+    int i;
+    
+    Node* temp = list->head;
+    
+    printf("\n");
+    while (temp != NULL) {
+        i = 1;
+        printf("mintermDec: %d", temp->mintermDec[0]);
+        while(temp->mintermDec[i]!=-1){
+            printf(", %d", temp->mintermDec[i]);
+            i += 1;
+        }
+        printf("\n");
+        printf("mintermBin: ");
+        for(i=0; i<numVariables; ++i){
+            if(temp->mintermBin[i]==-2){
+                printf("-");
+            } else{
+                printf("%d", temp->mintermBin[i]);
+            }
+        }
+        printf("\n");
+        printf("numOnes: %d\n", temp->numOnes);
+        printf("isImplicant: %d\n", temp->isImplicant);
+        printf("\n");
+        temp = temp->next;
+    }
+    printf("\n");
+    
+    free(temp);
+    
+    return;
+}
+
 int countOnes(Node* node, int numVariables){
     int i;
-    int sum = 0;
+    int sum = 0;    // variabel jumlah bit 1
     
     // Memeriksa semua bit
     for(i=0; i<numVariables; ++i){
@@ -90,6 +125,7 @@ void saveMinterm(LinkedList* list, int numMinterms, int numVariables, int minter
     // data node berikutnya
     new->next = NULL;
     
+    // Menambahkan node baru ke linked list minterm
     insertNode(list, new);
     
     return;
@@ -138,107 +174,161 @@ void groupByOnes(LinkedList* list, int numVariables){
     
     return;
 }
-/*
-void minimize(LinkedList* list, int numVariables){
+
+void minimize(LinkedList* list, int numMinterms, int numVariables){
     int i;
-    int change = 0;
-    int idxChange;
-    int sumChange;
+    int j;
+    int simplified = 1; // variabel penanda adanya penyederhanaan, inisialisasi 1
+    int idxChange;      // variabel indeks bit yang berubah
+    int sumChange;      // variabel jumlah perubahan
     
-    // Membuat linked list untuk menyimpan minterm hasil penyederhanaan
-    LinkedList* mintermGroupList = (LinkedList*) malloc(sizeof(LinkedList));
-    mintermGroupList->head = NULL;
-    
-    // Membuat pointer sementara untuk menyusuri linked list
-    Node* temp1 = list->head;
-    Node* temp2;
-    
-    // Menyusuri linked list
-    while(temp1!=NULL){      
-        // Membandingkan temp1 dengan semua node setelahnya
-        temp2 = temp1->next;
-        while(temp2!=NULL){
-            // Menginisialisasikan jumlah perubahan
-            sumChange = 0;
-            
-            // Melakukan perbandingan dua grup yang bersebelahan
-            if((temp2->numOnes)-(temp1->numOnes)==1){
-                // Melakukan perbandingan antar tiap bit
-                for(i=0; i<numVariables; ++i){
-                    // Jika 1 bit berbeda
-                    if((temp1->mintermBin[i])!=(temp2->mintermBin[i])){
-                        // Menambah jumlah perubahan bit
-                        sumChange += 1;
-                        
-                        // Menyimpan indeks perubahan bit
-                        idxChange = i;
+    while(simplified){
+        
+        // Membuat linked list untuk menyimpan minterm hasil penyederhanaan
+        LinkedList* mintermGroupList = (LinkedList*) malloc(sizeof(LinkedList));
+        mintermGroupList->head = NULL;
+        
+        // Membuat pointer sementara untuk menyusuri linked list
+        Node* temp1 = list->head;
+        Node* temp2;
+        
+        // Menyusuri linked list
+        while(temp1!=NULL){      
+            // Membandingkan temp1 dengan semua node setelahnya
+            temp2 = temp1->next;
+            while(temp2!=NULL){
+                // Menginisialisasikan jumlah perubahan
+                sumChange = 0;
+                
+                // Melakukan perbandingan dua grup yang bersebelahan
+                if((temp2->numOnes)-(temp1->numOnes)==1){
+                    // Melakukan perbandingan antar tiap bit
+                    for(i=0; i<numVariables; ++i){
+                        // Jika 1 bit berbeda
+                        if((temp1->mintermBin[i])!=(temp2->mintermBin[i])){
+                            // Menambah jumlah perubahan bit
+                            sumChange += 1;
+                            
+                            // Menyimpan indeks perubahan bit
+                            idxChange = i;
+                        }
                     }
                 }
+                
+                // Jika hanya terdapat 1 perubahan bit
+                if(sumChange==1){
+                    // Menandai ada penyederhanaan
+                    simplified = 1;
+                    
+                    // Mengubah indikator minterm bukan implicant
+                    temp1->isImplicant = 0;
+                    temp2->isImplicant = 0;
+                    
+                    // Menambahkan node penyederhanaan ke linked list
+                    Node* new = (Node*) malloc(sizeof(Node));
+                    
+                    // Mengisi data node baru
+                    // data minterm dalam desimal
+                    new->mintermDec = malloc(numMinterms*sizeof(int));
+                    
+                    // dari node pertama
+                    i=0;
+                    while(temp1->mintermDec[i]!=-1){
+                        new->mintermDec[i] = temp1->mintermDec[i];
+                        i += 1;
+                    }
+                    
+                    // dari node kedua
+                    j=0;
+                    while(temp2->mintermDec[j]!=-1){
+                        new->mintermDec[i] = temp2->mintermDec[j];
+                        i += 1;
+                        j += 1;
+                    }
+                    
+                    // Mengisi sisa array minterm dengan -1
+                    for(j=i; j<numMinterms; ++j){
+                        new->mintermDec[j] = -1;
+                    }                
+                    
+                    // data minterm dalam biner
+                    new->mintermBin = malloc(numVariables*sizeof(int));
+                    for(i=0; i<numVariables; ++i){
+                        new->mintermBin[i] = temp1->mintermBin[i];
+                    }
+                    // Menandai bit yang berubah
+                    new->mintermBin[idxChange] = -2;
+                    
+                    // data jumlah bit 1
+                    new->numOnes = temp1->numOnes;
+                    
+                    // data node berikutnya
+                    new->next = NULL;
+                    
+                    // Menambahkan node baru ke linked list penyederhanaan
+                    insertNode(mintermGroupList, new);
+                } 
+                // Jika tidak ada hanya 1 perubahan bit, tidak ada penyederhanaan
+                else{
+                    simplified = 0;
+                }
+                
+                // Melanjutkan perbandingan ke node berikutnya
+                temp2 = temp2->next;
             }
             
-            // Jika hanya terdapat 1 perubahan bit
-            if(sumChange==1){
-                // Menandai ada penyederhanaan
-                change = 1;
-                
-                // Mengubah indikator minterm bukan implicant
-                temp1->isImplicant = 0;
-                temp2->isImplicant = 0;
-                
-                // Menambahkan node penyederhanaan ke linked list
+            // Melanjutkan perbandingan ke node berikutnya
+            temp1 = temp1->next;
+        }
+        
+        // Menambahkan minterm yang tidak disederhanakan
+        temp1 = list->head;
+        while(temp1!=NULL){
+            // Jika minterm implicant
+            if(temp1->isImplicant==1){
+                // Mengalokasikan memori node baru
                 Node* new = (Node*) malloc(sizeof(Node));
                 
                 // Mengisi data node baru
                 // data minterm dalam desimal
                 new->mintermDec = malloc(numMinterms*sizeof(int));
-                
-                // dari node pertama
-                i=0;
-                while(temp1->mintermDec[i]!=-1){
-                    new->mintermDec[i] = temp1->mintermDec[i];
-                    i += 1;
+                new->mintermDec[0] = temp1->mintermDec[0]; ;
+                // Menginisialisasi sisa array minterm dengan -1
+                for(i=1; i<numMinterms; ++i){
+                    new->mintermDec[i] = -1;
                 }
                 
-                // dari node kedua
-                i=0;
-                while(temp2->mintermDec[i]!=-1){
-                    new->mintermDec[i] = temp2->mintermDec[i];
-                    i += 1;
+                // data minterm dalam biner
+                new->mintermBin = malloc(numVariables*sizeof(int));
+                // Konversi dan simpan minterm dalam bentuk biner
+                for(i=numVariables-1; i>=0; --i){
+                    new->mintermBin[i] = temp1->mintermBin[i];      
                 }
+                
+                // data jumlah bit 1
+                new->numOnes = temp1->numOnes;
+                
+                // data indikator implicant, asumsi setiap minterm adalah implicant
+                new->isImplicant = 1;
+                
+                // data node berikutnya
+                new->next = NULL;
+                
+                // Menambahkan node baru ke linked list minterm
+                insertNode(mintermGroupList, new);
             }
             
-            // Melanjutkan perbandingan ke node berikutnya
-            temp2 = temp2->next;
+            // Melanjutkan pengisian node berikutnya
+            temp1 = temp1->next;
         }
         
-        // Melanjutkan perbandingan ke node berikutnya
-        temp1 = temp1->next;
+        // Mengubah linked list minterm menjadi linked list hasil penyederhanaan
+        list->head = mintermGroupList->head;
+        
+        // debugging
+        printf("---------------------Di dalem minimize, proses------------------------\n");
+        printLinkedList(list, numVariables);
     }
-    
-    return;
-}
-*/
-void printLinkedList(LinkedList* list, int numVariables) {
-    int i;
-    
-    Node* temp = list->head;
-    
-    printf("\n");
-    while (temp != NULL) {
-        printf("mintermDec: %d\n", temp->mintermDec[0]);
-        printf("mintermBin: ");
-        for(i=0; i<numVariables; ++i){
-            printf("%d", temp->mintermBin[i]);
-        }
-        printf("\n");
-        printf("numOnes: %d\n", temp->numOnes);
-        printf("isImplicant: %d\n", temp->isImplicant);
-        printf("\n");
-        temp = temp->next;
-    }
-    printf("\n");
-    
-    free(temp);
     
     return;
 }
@@ -272,16 +362,20 @@ int main()
     }
     
     // debugging
-    printf("Setelah saveMinterm\n");
+    printf("---------------------Setelah saveMinterm---------------------\n");
     printLinkedList(mintermList, numVariables);
     
     // Mengurutkan mintermList berdasarkan jumlah bit 1 minterm dalam biner
     groupByOnes(mintermList, numVariables);
     
     // debugging
-    printf("Setelah groupByOnes\n");
+    printf("---------------------Setelah groupByOnes---------------------\n");
     printLinkedList(mintermList, numVariables);
-
+    
+    minimize(mintermList, numMinterms, numVariables);
+    
+    
+    
     return 0;
     
 }
