@@ -541,6 +541,80 @@ void displayPrimeImplicant(LinkedList* list, int numMinterms, int numVariables, 
         temp = temp->next;
     }
     printf("==================================================\n\n\n\n\n");
+    
+    return;
+}
+
+void findEssential(LinkedList* list, int numMinterms, int numPrimeImplicant, int* arrayPrimeImplicant){
+    int i=0;
+    int j;
+    int k;
+    int count;
+    int isEssential;
+    
+    // Membuat pointer sementara untuk menyusuri linked list
+    Node* temp = list->head;
+    
+    // Menyusuri linked list
+    while(temp!=NULL){
+        isEssential = 0;
+        // cek semua baris
+        for(j=0; j<numMinterms; ++j){
+            count = 0;
+            // jika ada isi 1, cek kolom
+            if(arrayPrimeImplicant[i*numMinterms+j]==1){
+                for(k=0; k<numPrimeImplicant; ++k){
+                    if(arrayPrimeImplicant[k*numMinterms+j]==1){
+                        count += 1;
+                    }
+                }
+                
+                // kalau dalam satu kolom hanya ada 1 bit 1, prime implicant adalah essential
+                if(count==1){
+                        temp->isImplicant = 1;
+                    }
+            }
+        }
+        
+        i += 1;
+        
+        // Melanjutkan perbandingan ke node berikutnya        
+        temp = temp->next;
+    }
+    
+    return;
+}
+
+void printResult(LinkedList* list, int numVariables){
+    int i;
+    
+    // Membuat pointer sementara untuk menyusuri linked list
+    Node* temp = list->head;
+    
+    // Menyusuri linked list
+    while(temp!=NULL){
+        // Jika prime implicant adalah essential
+        if(temp->isImplicant==1){
+            for(i=0; i<numVariables; ++i){
+                if(temp->mintermBin[i]==1){
+                    printf("%c", (char)91-(numVariables-i));
+                } else if(temp->mintermBin[i]==0){
+                    printf("%c'", (char)91-(numVariables-i));
+                }
+            }
+            
+            if(temp->next!=NULL){
+                printf(" + ");
+            }
+        }            
+        
+        // Melanjutkan perbandingan ke node berikutnya        
+        temp = temp->next;
+    }
+    
+    printf("\n");
+    
+    return;
 }
 
 int main()
@@ -603,6 +677,12 @@ int main()
     
     // Menampilkan tabel prime implicant
     displayPrimeImplicant(mintermList, numMinterms, numVariables, arrayMinterm, arrayPrimeImplicant);
+    
+    // Mencari essential prime implicant
+    findEssential(mintermList, numMinterms, numPrimeImplicant, arrayPrimeImplicant);
+    
+    // Mencetak hasil akhir penyederhanaan
+    printResult(mintermList, numVariables);
     
     return 0;
     
