@@ -501,18 +501,34 @@ void displayPrimeImplicant(LinkedList* list, int numMinterms, int numVariables, 
     // Membuat pointer sementara untuk menyusuri linked list
     Node* temp = list->head;
     
-    // Mencetak judul tabel
-    printf("Minterms\t|  ");
-    
     // Mencetak minterm dalam desimal
+    printf("  ");
     for(i=0; i<numMinterms; ++i){
-        printf("%d  ", arrayMinterm[i]);
+        printf("%d\t", arrayMinterm[i]);
+    }
+    printf("|");
+    
+    // Mencetak judul tabel
+    printf("\tMinterms\n");
+    
+    for(i=0; i<numMinterms*11; ++i){
+        printf("=");
     }
     printf("\n");
-    printf("==================================================\n");
     
     // Menyusuri linked list
     while(temp!=NULL){
+        // Mencetak minterm di dalam prime implicant
+        printf("  ");
+        for(i=0; i<numMinterms; ++i){
+            if(arrayPrimeImplicant[k*numMinterms+i]==1){
+                printf("X\t");
+            } else{
+                printf(" \t");
+            }
+        }
+        printf("|\t");
+        
         // Mencetak prime implicant
         printf("%d", temp->mintermDec[0]);
         i = 1;
@@ -520,20 +536,7 @@ void displayPrimeImplicant(LinkedList* list, int numMinterms, int numVariables, 
             printf(",%d", temp->mintermDec[i]);
             i += 1;
         }
-        printf("\t|  ");
         
-        // Mencetak minterm di dalam prime implicant
-        for(i=0; i<numMinterms; ++i){
-            for(j=0; j<temp->mintermDec[i]/10; ++j){
-                printf(" ");
-            }
-            
-            if(arrayPrimeImplicant[k*numMinterms+i]==1){
-                printf("X  ");
-            } else{
-                printf("   ");
-            }
-        }
         printf("\n");
         
         k += 1;
@@ -541,7 +544,10 @@ void displayPrimeImplicant(LinkedList* list, int numMinterms, int numVariables, 
         // Melanjutkan perbandingan ke node berikutnya        
         temp = temp->next;
     }
-    printf("==================================================\n\n\n\n\n");
+     for(i=0; i<numMinterms*7; ++i){
+        printf("=");
+    }
+    printf("\n");
     
     return;
 }
@@ -680,6 +686,19 @@ int main()
         if(result){
             numMinterms += 1;
         }
+    }
+    printf("\n");
+    
+    if(numMinterms==pow(2,numVariables)){
+        printf("Hasil Akhir Penyederhanaan\n");
+        printf("1\n");
+        
+        return 0;
+    } else if(numMinterms==0){
+        printf("Hasil Akhir Penyederhanaan\n");
+        printf("0\n");
+        
+        return 0;
     }
     
     // Meminta input minterm dalam desimal
