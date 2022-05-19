@@ -177,7 +177,7 @@ void groupByOnes(LinkedList* list, int numVariables){
     return;
 }
 
-void display(LinkedList* list, int numVariables){
+void displayImplicant(LinkedList* list, int numVariables){
     int i;
     int numGroup = list->head->numOnes;   // variabel nomor baris, inisialisasi jumlah bit 1 implicant pertama
     
@@ -400,7 +400,7 @@ void minimize(LinkedList* list, int numMinterms, int numVariables){
             list->head = mintermGroupList->head;
             
             // Menampilkan tabel hasil penyederhanaan
-            display(list, numVariables);
+            displayImplicant(list, numVariables);
         }
     }
     
@@ -416,7 +416,6 @@ void deleteDuplicate(LinkedList* list, int numVariables){
     
     // Menyusuri linked list
     while((temp!=NULL)&&(temp->next!=NULL)){   
-    
         // Menginisialisasi penanda
         same = 1;
         
@@ -434,15 +433,75 @@ void deleteDuplicate(LinkedList* list, int numVariables){
             // Lewati prime implicant yang sama
             temp->next = temp->next->next;
         }
-        
+
         // Melanjutkan perbandingan ke node berikutnya        
         temp = temp->next;
     }
     
     // Menampilkan tabel hasil penyederhanaan
-    display(list, numVariables);
+    displayImplicant(list, numVariables);
     
     return;
+}
+
+int countPrimeImplicant(LinkedList* list){
+    int count = 0;  // variabel penyimpan jumlah prime implicant
+    
+    // Membuat pointer sementara untuk menyusuri linked list
+    Node* temp = list->head;
+    
+    // Menyusuri linked list
+    while(temp!=NULL){        
+        // Menambah jumlah prime implicant
+        count += 1;
+        
+        // Melanjutkan perbandingan ke node berikutnya        
+        temp = temp->next;
+    }
+    
+    return count;
+}
+
+void fillPrimeImplicant(LinkedList* list, int arrayPrimeImplicant){
+    
+}
+
+void displayPrimeImplicant(LinkedList* list, int numMinterms, int numVariables, int* arrayMinterm){
+    int i;
+    
+    // Membuat pointer sementara untuk menyusuri linked list
+    Node* temp = list->head;
+    
+    // Mencetak judul tabel
+    printf("Minterms\t");
+    
+    // Mencetak minterm dalam desimal
+    for(i=0; i<numMinterms; ++i){
+        printf("%d ", arrayMinterm[i]);
+    }
+    printf("\n");
+    printf("==================================================\n");
+    
+    // Menyusuri linked list
+    while(temp!=NULL){
+        // Mencetak prime implicant
+        printf("%d", temp->mintermDec[0]);
+        i = 1;
+        while((temp->mintermDec[i]!=-1)&&(i<(numVariables*numVariables))){
+            printf(",%d", temp->mintermDec[i]);
+            i += 1;
+        }
+        printf("\t");
+        
+        // Mencetak minterm di dalam prime implicant
+        for(i=0; i<numMinterms; ++i){
+            
+        }
+        
+        // Melanjutkan perbandingan ke node berikutnya        
+        temp = temp->next;
+    }
+    printf("==================================================\n\n\n\n\n");
 }
 
 int main()
@@ -452,6 +511,9 @@ int main()
     int numVariables;
     int numMinterms;
     int minterm;
+    int* arrayMinterm;
+    int numPrimeImplicant;
+    int* arrayPrimeImplicant;
     
     // Meminta input data
     printf("\nEnter the number of variables : ");       
@@ -463,12 +525,17 @@ int main()
     LinkedList* mintermList = (LinkedList*) malloc(sizeof(LinkedList));
     mintermList->head = NULL;
     
-    // Meminta input minterm dalam desimal dan menyimpannya ke mintermList
+    // Meminta input minterm dalam desimal
     // asumsi input terurut dari minterm terkecil
+    arrayMinterm =  malloc(numMinterms*sizeof(int));
     for(i=0; i<numMinterms; ++i){
         printf("minterm ke-%d: ", i+1);
         scanf("%d", &minterm);
         
+        // Menyimpan minterm ke array
+        arrayMinterm[i] = minterm;
+        
+        // Menyimpan minterm ke mintermList
         saveMinterm(mintermList, numMinterms, numVariables, minterm);
         
     }
@@ -481,13 +548,21 @@ int main()
     groupByOnes(mintermList, numVariables);
     
     // Menampilkan tabel minterm sebelum penyederhanaan
-    display(mintermList, numVariables);
+    displayImplicant(mintermList, numVariables);
     
     // Melakukan penyederhanaan dengan Quine-McCluskey Tabular Method
     minimize(mintermList, numMinterms, numVariables);
        
     // Menghapus prime implicant duplikat
     deleteDuplicate(mintermList, numVariables);
+    
+    // Menghitung jumlah prime implicant
+    numPrimeImplicant = countPrimeImplicant(mintermList);
+    
+    printf("%d\n", numPrimeImplicant);
+    
+    // Menampilkan tabel prime implicant
+    //displayPrimeImplicant(mintermList, numMinterms, numVariables, arrayMinterm);
     
     return 0;
     
