@@ -462,22 +462,50 @@ int countPrimeImplicant(LinkedList* list){
     return count;
 }
 
-void fillPrimeImplicant(LinkedList* list, int arrayPrimeImplicant){
+void fillPrimeImplicant(LinkedList* list, int numMinterms, int numVariables, int* arrayMinterm, int* arrayPrimeImplicant){
+    int i=0;
+    int j;
+    int k;
     
+    // Membuat pointer sementara untuk menyusuri linked list
+    Node* temp = list->head;
+    
+    // Menyusuri linked list
+    while(temp!=NULL){
+        // Mengisi matriks prime implicant 
+        j = 0;
+        while((temp->mintermDec[j]!=-1)&&(j<(numVariables*numVariables))){
+            k = 0;
+            while(temp->mintermDec[j]!=arrayMinterm[k]){
+                k += 1;
+            }
+            arrayPrimeImplicant[i*numMinterms+k] = 1;
+        
+            j += 1;
+        }
+        i += 1;
+    
+        // Melanjutkan perbandingan ke node berikutnya        
+        temp = temp->next;
+    }
+    
+    return;
 }
 
-void displayPrimeImplicant(LinkedList* list, int numMinterms, int numVariables, int* arrayMinterm){
+void displayPrimeImplicant(LinkedList* list, int numMinterms, int numVariables, int* arrayMinterm, int* arrayPrimeImplicant){
     int i;
+    int j;
+    int k=0;
     
     // Membuat pointer sementara untuk menyusuri linked list
     Node* temp = list->head;
     
     // Mencetak judul tabel
-    printf("Minterms\t");
+    printf("Minterms\t|  ");
     
     // Mencetak minterm dalam desimal
     for(i=0; i<numMinterms; ++i){
-        printf("%d ", arrayMinterm[i]);
+        printf("%d  ", arrayMinterm[i]);
     }
     printf("\n");
     printf("==================================================\n");
@@ -491,12 +519,23 @@ void displayPrimeImplicant(LinkedList* list, int numMinterms, int numVariables, 
             printf(",%d", temp->mintermDec[i]);
             i += 1;
         }
-        printf("\t");
+        printf("\t|  ");
         
         // Mencetak minterm di dalam prime implicant
         for(i=0; i<numMinterms; ++i){
+            for(j=0; j<temp->mintermDec[i]/10; ++j){
+                printf(" ");
+            }
             
+            if(arrayPrimeImplicant[k*numMinterms+i]==1){
+                printf("X  ");
+            } else{
+                printf("   ");
+            }
         }
+        printf("\n");
+        
+        k += 1;
         
         // Melanjutkan perbandingan ke node berikutnya        
         temp = temp->next;
@@ -507,13 +546,12 @@ void displayPrimeImplicant(LinkedList* list, int numMinterms, int numVariables, 
 int main()
 {
     int i;
-    
-    int numVariables;
-    int numMinterms;
-    int minterm;
-    int* arrayMinterm;
-    int numPrimeImplicant;
-    int* arrayPrimeImplicant;
+    int numVariables;           // variabel penyimpan jumlah variabel
+    int numMinterms;            // variabel penyimpan jumlah minterm
+    int minterm;                // variabel penyimpan minterm input
+    int* arrayMinterm;          // array penyimpan semua minterm input
+    int numPrimeImplicant;      // variabel penyimpan jumlah prime implicant
+    int* arrayPrimeImplicant;   // matriks penyimpan semua prime implicant dan mintermnya    
     
     // Meminta input data
     printf("\nEnter the number of variables : ");       
@@ -559,10 +597,12 @@ int main()
     // Menghitung jumlah prime implicant
     numPrimeImplicant = countPrimeImplicant(mintermList);
     
-    printf("%d\n", numPrimeImplicant);
+    // Mengisi tabel prime implicant
+    arrayPrimeImplicant = malloc(numMinterms*numPrimeImplicant*sizeof(int));
+    fillPrimeImplicant(mintermList, numMinterms, numVariables, arrayMinterm, arrayPrimeImplicant);
     
     // Menampilkan tabel prime implicant
-    //displayPrimeImplicant(mintermList, numMinterms, numVariables, arrayMinterm);
+    displayPrimeImplicant(mintermList, numMinterms, numVariables, arrayMinterm, arrayPrimeImplicant);
     
     return 0;
     
