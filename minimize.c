@@ -90,7 +90,9 @@ void insertNode(LinkedList* list, Node* node){
         
         // Menghubungkan node terakhir dengan node baru
         temp->next = node;
-    }  
+    }
+    
+    return;
 }
 
 void saveMinterm(LinkedList* list, int numMinterms, int numVariables, int minterm){
@@ -171,6 +173,61 @@ void groupByOnes(LinkedList* list, int numVariables){
         // Melanjutkan perbandingan ke node berikutnya
         temp1 = temp1->next;
     }
+    
+    return;
+}
+
+void display(LinkedList* list, int numVariables){
+    int i;
+    int numGroup = list->head->numOnes;   // variabel nomor baris, inisialisasi jumlah bit 1 implicant pertama
+    
+    // Membuat pointer sementara untuk menyusuri linked list
+    Node* temp = list->head;    
+    
+    // Mencetak judul tabel
+    printf("Group No.\tMinterms\tBinary of Minterms\n");
+    printf("==================================================\n");
+    // Mencetak nomor grup
+    printf("     %d:\n", numGroup);
+    
+    // Menyusuri linked list
+    while(temp!=NULL){
+        // Jika mencapai implicant dengan jumlah bit 1 berbeda
+        if(numGroup!=temp->numOnes){
+            // Mengubah nomor grup
+            numGroup = temp->numOnes;
+            
+            // Mencetak pembatas grup
+            printf("--------------------------------------------------\n");
+            
+            // Mencetak nomor grup
+            printf("     %d:\n", numGroup);
+        }
+        
+        // Mencetak isi grup
+        // mencetak minterm dalam desimal
+        printf("\t\t%d", temp->mintermDec[0]);
+        i = 1;
+        while((temp->mintermDec[i]!=-1)&&(i<(numVariables*numVariables))){
+            printf(",%d", temp->mintermDec[i]);
+            i += 1;
+        }
+        printf("\t\t");
+        
+        // mencetak minterm dalam biner
+        for(i=0; i<numVariables; ++i){
+            if(temp->mintermBin[i]==-2){
+                printf("-");
+            } else{
+                printf("%d", temp->mintermBin[i]);
+            }
+        }
+        printf("\n");
+        
+        // Melanjutkan perbandingan ke node berikutnya        
+        temp = temp->next;
+    }
+    printf("==================================================\n\n\n\n\n");
     
     return;
 }
@@ -341,14 +398,10 @@ void minimize(LinkedList* list, int numMinterms, int numVariables){
         if(simplified||notSimplified){
             // Mengubah linked list minterm menjadi linked list hasil penyederhanaan
             list->head = mintermGroupList->head;
+            
+            // Menampilkan tabel hasil penyederhanaan
+            display(list, numVariables);
         }
-        
-        // debugging
-        printf("---------------------Di dalem minimize, proses------------------------\n");
-        printf("penyederhanaan ke-%d\n", test);
-        test += 1;
-        printf("simplified: %d\n", simplified);
-        printLinkedList(list, numVariables);
     }
     
     return;
@@ -359,17 +412,18 @@ void deleteDuplicate(LinkedList* list, int numVariables){
     int same;   // variabel penanda dua prime implicant sama
     
     // Membuat pointer sementara untuk menyusuri linked list
-    Node* temp1 = list->head;
-
+    Node* temp = list->head;
+    
     // Menyusuri linked list
-    while(temp1!=NULL){        
+    while((temp!=NULL)&&(temp->next!=NULL)){   
+    
         // Menginisialisasi penanda
         same = 1;
         
         // Melakukan perbandingan antar tiap bit
         for(i=0; i<numVariables; ++i){
             // Jika terdapat bit yang berbeda
-            if((temp1->mintermBin[i])!=(temp1->next->mintermBin[i])){
+            if((temp->mintermBin[i])!=(temp->next->mintermBin[i])){
                 // Mengubah penanda
                 same = 0;
             }
@@ -378,12 +432,17 @@ void deleteDuplicate(LinkedList* list, int numVariables){
         // Jika kedua prime implicant sama
         if(same){
             // Lewati prime implicant yang sama
-            temp1->next = temp1->next->next;
+            temp->next = temp->next->next;
         }
         
         // Melanjutkan perbandingan ke node berikutnya        
-        temp1 = temp1->next;
+        temp = temp->next;
     }
+    
+    // Menampilkan tabel hasil penyederhanaan
+    display(list, numVariables);
+    
+    return;
 }
 
 int main()
@@ -421,23 +480,14 @@ int main()
     // Mengurutkan mintermList berdasarkan jumlah bit 1 minterm dalam biner
     groupByOnes(mintermList, numVariables);
     
-    // debugging
-    printf("---------------------Setelah groupByOnes---------------------\n");
-    printLinkedList(mintermList, numVariables);
+    // Menampilkan tabel minterm sebelum penyederhanaan
+    display(mintermList, numVariables);
     
     // Melakukan penyederhanaan dengan Quine-McCluskey Tabular Method
     minimize(mintermList, numMinterms, numVariables);
-    
-    // debugging
-    printf("---------------------Setelah minimize---------------------\n");
-    printLinkedList(mintermList, numVariables);
-    
+       
     // Menghapus prime implicant duplikat
     deleteDuplicate(mintermList, numVariables);
-    
-    // debugging
-    printf("---------------------Setelah deleteDuplicate---------------------\n");
-    printLinkedList(mintermList, numVariables);
     
     return 0;
     
