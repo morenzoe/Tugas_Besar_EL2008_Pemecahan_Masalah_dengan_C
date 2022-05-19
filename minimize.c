@@ -178,15 +178,17 @@ void groupByOnes(LinkedList* list, int numVariables){
 void minimize(LinkedList* list, int numMinterms, int numVariables){
     int i;
     int j;
-    int simplified = 1; // variabel penanda adanya penyederhanaan, inisialisasi ada
+    int simplified;     // variabel penanda adanya implicant yang disederhanakan
+    int notSimplified;  // variabel penanda adanya implicant yang tidak disederhanakan
     int idxChange;      // variabel indeks bit yang berubah
     int sumChange;      // variabel jumlah perubahan
     
-    int test=1;           // debugging
+    int test=1;         // debugging
     
     while(simplified){
-        // Mengasumsikan tidak ada perubahan
+        // Menginisialisasi penanda
         simplified = 0;
+        notSimplified = 0;
         
         // Membuat linked list untuk menyimpan minterm hasil penyederhanaan
         LinkedList* mintermGroupList = (LinkedList*) malloc(sizeof(LinkedList));
@@ -298,6 +300,7 @@ void minimize(LinkedList* list, int numMinterms, int numVariables){
         while(temp1!=NULL){
             // Jika minterm implicant
             if(temp1->isImplicant==1){
+                notSimplified = 1;
                 // Mengalokasikan memori node baru
                 Node* new = (Node*) malloc(sizeof(Node));
                 
@@ -334,8 +337,11 @@ void minimize(LinkedList* list, int numMinterms, int numVariables){
             temp1 = temp1->next;
         }
         
-        // Mengubah linked list minterm menjadi linked list hasil penyederhanaan
-        list->head = mintermGroupList->head;
+        // Jika mintermGroupList terisi
+        if(simplified||notSimplified){
+            // Mengubah linked list minterm menjadi linked list hasil penyederhanaan
+            list->head = mintermGroupList->head;
+        }
         
         // debugging
         printf("---------------------Di dalem minimize, proses------------------------\n");
@@ -347,37 +353,39 @@ void minimize(LinkedList* list, int numMinterms, int numVariables){
     
     return;
 }
-/*
+
 void deleteDuplicate(LinkedList* list, int numVariables){
     int i;
-    int same = 1;   // variabel penanda dua prime implicant sama, inisialisasi sama
+    int same;   // variabel penanda dua prime implicant sama
     
     // Membuat pointer sementara untuk menyusuri linked list
     Node* temp1 = list->head;
-    Node* temp2;
-    
+
     // Menyusuri linked list
-    while(temp1!=NULL){      
-        // Membandingkan temp1 dengan semua node setelahnya
-        temp2 = temp1->next;
-        while(temp2!=NULL){
-            // Melakukan perbandingan antar tiap bit
-            for(i=0; i<numVariables; ++i){
-                // Jika terdapat bit yang berbeda
-                if((temp1->mintermBin[i])!=(temp2->mintermBin[i])){
-                    // Mengubah penanda
-                    same = 0;
-                }
-            
-            // Melanjutkan perbandingan ke node berikutnya
-            temp2 = temp2->next;
+    while(temp1!=NULL){        
+        // Menginisialisasi penanda
+        same = 1;
+        
+        // Melakukan perbandingan antar tiap bit
+        for(i=0; i<numVariables; ++i){
+            // Jika terdapat bit yang berbeda
+            if((temp1->mintermBin[i])!=(temp1->next->mintermBin[i])){
+                // Mengubah penanda
+                same = 0;
+            }
         }
         
-     // Melanjutkan perbandingan ke node berikutnya
-    temp1 = temp1->next;   
+        // Jika kedua prime implicant sama
+        if(same){
+            // Lewati prime implicant yang sama
+            temp1->next = temp1->next->next;
+        }
+        
+        // Melanjutkan perbandingan ke node berikutnya        
+        temp1 = temp1->next;
     }
 }
-*/
+
 int main()
 {
     int i;
@@ -420,8 +428,16 @@ int main()
     // Melakukan penyederhanaan dengan Quine-McCluskey Tabular Method
     minimize(mintermList, numMinterms, numVariables);
     
-    // Menghapus prime implicant duplikat
+    // debugging
+    printf("---------------------Setelah minimize---------------------\n");
+    printLinkedList(mintermList, numVariables);
     
+    // Menghapus prime implicant duplikat
+    deleteDuplicate(mintermList, numVariables);
+    
+    // debugging
+    printf("---------------------Setelah deleteDuplicate---------------------\n");
+    printLinkedList(mintermList, numVariables);
     
     return 0;
     
