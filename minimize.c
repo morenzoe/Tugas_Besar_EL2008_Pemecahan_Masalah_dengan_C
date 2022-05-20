@@ -26,6 +26,14 @@ typedef struct LinkedList{
     Node* head; // pointer ke node pertama linked list
 } LinkedList;
 
+void red(){
+  printf("\033[1;31m");
+}
+
+void reset(){
+  printf("\033[0m");
+}
+
 void printLinkedList(LinkedList* list, int numVariables) {
     int i;
     
@@ -228,7 +236,7 @@ void displayImplicant(LinkedList* list, int numVariables){
         // Melanjutkan perbandingan ke node berikutnya        
         temp = temp->next;
     }
-    printf("==================================================\n\n\n\n\n");
+    printf("==================================================\n\n");
     
     return;
 }
@@ -241,7 +249,7 @@ void minimize(LinkedList* list, int numMinterms, int numVariables){
     int idxChange;      // variabel indeks bit yang berubah
     int sumChange;      // variabel jumlah perubahan
     
-    int test=1;         // debugging
+    int step=1;         // debugging
     
     while(simplified){
         // Menginisialisasi penanda
@@ -401,7 +409,12 @@ void minimize(LinkedList* list, int numMinterms, int numVariables){
             list->head = mintermGroupList->head;
             
             // Menampilkan tabel hasil penyederhanaan
+            red();
+            printf("Tabel Penyederhanaan ke-%d\n", step);
+            reset();
             displayImplicant(list, numVariables);
+            
+            step += 1;
         }
     }
     
@@ -440,6 +453,9 @@ void deleteDuplicate(LinkedList* list, int numVariables){
     }
     
     // Menampilkan tabel hasil penyederhanaan
+    red();
+    printf("Tabel Hasil Penghapusan Duplikat\n");
+    reset();
     displayImplicant(list, numVariables);
     
     return;
@@ -544,7 +560,7 @@ void displayPrimeImplicant(LinkedList* list, int numMinterms, int numVariables, 
         // Melanjutkan perbandingan ke node berikutnya        
         temp = temp->next;
     }
-     for(i=0; i<numMinterms*7; ++i){
+    for(i=0; i<numMinterms*11; ++i){
         printf("=");
     }
     printf("\n");
@@ -629,7 +645,7 @@ int main()
     int i;
     int j;
     int numVariables;           // variabel penyimpan jumlah variabel
-    int numMinterms=0;            // variabel penyimpan jumlah minterm
+    int numMinterms=0;          // variabel penyimpan jumlah minterm
     
     int* binary;                // array hasil konversi desimal ke biner
     int result;                 // variabel penyimpan input hasil truth table
@@ -640,8 +656,17 @@ int main()
     int numPrimeImplicant;      // variabel penyimpan jumlah prime implicant
     int* arrayPrimeImplicant;   // matriks penyimpan semua prime implicant dan mintermnya    
     
+    // Mencetak informasi awal
+    red();
+    printf("Selamat datang di Algebra Boolean Calculator!\n\n");
+    reset();
+    printf("Program ini dapat menyederhanakan\n");
+    printf("persamaan boolean dari input truth table\n\n");
+    
     // Meminta input data
-    printf("\nEnter the number of variables : ");       
+    printf("Jumlah variabel adalah integer yang\n");
+    printf("lebih besar dari 0 dan kurang dari 27\n");
+    printf("Masukkan jumlah variabel: ");       
     scanf("%d",&numVariables);
     
     // Mengalokasikan memori array biner
@@ -656,6 +681,9 @@ int main()
     
     // Menampilkan judul tabel
     // menampilkan variabel
+    red();
+    printf("\nTruth Table\n");
+    reset();
     for(i=0; i<numVariables; ++i){
         printf("%c ", (char)91-(numVariables-i));
     }
@@ -691,14 +719,18 @@ int main()
     
     // Jika minterm sebanyak baris truth table
     if(numMinterms==pow(2,numVariables)){
+        red();
         printf("Hasil Akhir Penyederhanaan\n");
+        reset();
         printf("1\n");
         
         return 0;
         
     // Jika tidak ada minterm
     } else if(numMinterms==0){
+        red();
         printf("Hasil Akhir Penyederhanaan\n");
+        reset();
         printf("0\n");
         
         return 0;
@@ -721,14 +753,13 @@ int main()
         }
     }
     
-    // debugging
-    printf("---------------------Setelah saveMinterm---------------------\n");
-    printLinkedList(mintermList, numVariables);
-    
     // Mengurutkan mintermList berdasarkan jumlah bit 1 minterm dalam biner
     groupByOnes(mintermList, numVariables);
     
     // Menampilkan tabel minterm sebelum penyederhanaan
+    red();
+    printf("Tabel Hasil Pengelompokkan\n");
+    reset();
     displayImplicant(mintermList, numVariables);
     
     // Melakukan penyederhanaan dengan Quine-McCluskey Tabular Method
@@ -745,12 +776,18 @@ int main()
     fillPrimeImplicant(mintermList, numMinterms, numVariables, arrayMinterm, arrayPrimeImplicant);
     
     // Menampilkan tabel prime implicant
+    red();
+    printf("Tabel Implikan Prima\n");
+    reset();
     displayPrimeImplicant(mintermList, numMinterms, numVariables, arrayMinterm, arrayPrimeImplicant);
     
     // Mencari essential prime implicant
     findEssential(mintermList, numMinterms, numPrimeImplicant, arrayPrimeImplicant);
     
     // Mencetak hasil akhir penyederhanaan
+    red();
+    printf("\nHasil Akhir Penyederhanaan\n");
+    reset();
     printResult(mintermList, numVariables);
     
     return 0;
