@@ -4,7 +4,7 @@
 *Hari dan Tanggal   : Kamis, 19 Mei 2022
 *Dosen              : 
 *Nama File          : minimize.h
-*Deskripsi          : Header file untuk minimize.c
+*Deskripsi          : Header file untuk minimize.c, berisi macros dan prototypes
 */
 
 #include <stdio.h>
@@ -14,38 +14,39 @@
 
 #define MAX 255         // ukuran maksimal string input 
 
-/** Node. Sebuah node dari singly-linked list.
- * Digunakan sebagai elemen dari LinkedList.
+/**
+ * elemen dari LinkedList.
  * 
- * @param mintermDec    minterm dalam desimal.
- * @param mintermBin    minterm dalam  biner.
+ * @param mintermDec    minterm dalam desimal
+ * @param mintermBin    minterm dalam  biner
  * @param numOnes       jumlah bit 1 minterm biner
  * @param isImplicant   indikator minterm implicant, 1 atau 0
  * @param next          pointer ke node berikutnya
  */
 typedef struct Node{
-    int* mintermDec;    // minterm dalam desimal
-    int* mintermBin;    // minterm dalam  biner
-    int numOnes;        // jumlah bit 1 minterm biner
-    int isImplicant;    // indikator minterm implicant, 1 atau 0
-    struct Node* next;  // pointer ke node berikutnya
+    int* mintermDec;
+    int* mintermBin;
+    int numOnes;
+    int isImplicant;
+    struct Node* next;
 } Node;
 
-/** LinkedList. Representasi dari sebuah singly-linked list.
- * 
- * @param head pointer menuju node paling pertama dalam singly-linked list.
+/** 
+ * representasi dari singly-linked list
+ *
+ * @param head pointer menuju node paling pertama dalam singly-linked list
  */
 typedef struct LinkedList{
-    Node* head; // pointer ke node pertama linked list
+    Node* head;
 } LinkedList;
 
 /**
- * prosedur untuk membuat warna font command line menjadi merah.
+ * prosedur untuk membuat warna font command line menjadi merah
  */
 void red();
 
 /** 
- * prosedur untuk mengembalikan warna font command line menjadi default.
+ * prosedur untuk mengembalikan warna font command line menjadi default
  */
 void reset();
 

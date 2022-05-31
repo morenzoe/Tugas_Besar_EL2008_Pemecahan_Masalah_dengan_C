@@ -723,7 +723,7 @@ void fillPrimeImplicant(LinkedList* list, int numMinterms, int numVariables, int
 void displayPrimeImplicant(LinkedList* list, int numMinterms, int numVariables, int* arrayMinterm, int* arrayPrimeImplicant)
 {
     int i;      // variabel iterasi
-    int j;      // variabel iterasi  
+    int j=0;      // variabel iterasi 
     
     // Membuat pointer sementara untuk menyusuri linked list
     Node* temp = list->head;
@@ -739,7 +739,7 @@ void displayPrimeImplicant(LinkedList* list, int numMinterms, int numVariables, 
     printf("\tMinterms\n");
     
     // Mencetak pembatas tabel
-    for(i=0; i<numMinterms*11; ++i){
+    for(i=0; i<numMinterms*15; ++i){
         printf("=");
     }
     printf("\n");
@@ -749,7 +749,7 @@ void displayPrimeImplicant(LinkedList* list, int numMinterms, int numVariables, 
         // Mencetak minterm di dalam prime implicant
         printf("  ");
         for(i=0; i<numMinterms; ++i){
-            if(arrayPrimeImplicant[k*numMinterms+i]==1){
+            if(arrayPrimeImplicant[j*numMinterms+i]==1){
                 printf("X\t");
             } else{
                 printf(" \t");
@@ -771,7 +771,7 @@ void displayPrimeImplicant(LinkedList* list, int numMinterms, int numVariables, 
     }
     
     // Mencetak pembatas tabel
-    for(i=0; i<numMinterms*11; ++i){
+    for(i=0; i<numMinterms*15; ++i){
         printf("=");
     }
     printf("\n");
