@@ -30,6 +30,8 @@ void red();
 
 void reset();
 
+void printLinkedList(LinkedList* list, int numVariables);
+
 int isInteger(char* token);
 
 int countOnes(Node* node, int numVariables);

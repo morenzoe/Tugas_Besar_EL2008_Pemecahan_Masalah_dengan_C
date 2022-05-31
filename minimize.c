@@ -243,42 +243,6 @@ void reset()
   printf("\033[0m");
 }
 
-void printLinkedList(LinkedList* list, int numVariables)
-{
-    int i;
-    
-    Node* temp = list->head;
-    
-    printf("\n");
-    while (temp != NULL) {
-        i = 1;
-        printf("mintermDec: %d", temp->mintermDec[0]);
-        while((temp->mintermDec[i]!=-1)&&(i<(numVariables*numVariables))){
-            printf(", %d", temp->mintermDec[i]);
-            i += 1;
-        }
-        printf("\n");
-        printf("mintermBin: ");
-        for(i=0; i<numVariables; ++i){
-            if(temp->mintermBin[i]==-2){
-                printf("-");
-            } else{
-                printf("%d", temp->mintermBin[i]);
-            }
-        }
-        printf("\n");
-        printf("numOnes: %d\n", temp->numOnes);
-        printf("isImplicant: %d\n", temp->isImplicant);
-        printf("\n");
-        temp = temp->next;
-    }
-    printf("\n");
-    
-    free(temp);
-    
-    return;
-}
-
 int isInteger(char* token)
 {
     // Melakukan typecasting token menjadi float
