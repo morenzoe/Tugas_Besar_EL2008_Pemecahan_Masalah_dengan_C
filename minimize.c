@@ -12,7 +12,10 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <math.h>
+
+#define MAX 255         // ukuran maksimal string input 
 
 typedef struct Node{
     int* mintermDec;    // minterm dalam desimal
@@ -26,15 +29,18 @@ typedef struct LinkedList{
     Node* head; // pointer ke node pertama linked list
 } LinkedList;
 
-void red(){
+void red()
+{
   printf("\033[1;31m");
 }
 
-void reset(){
+void reset()
+{
   printf("\033[0m");
 }
 
-void printLinkedList(LinkedList* list, int numVariables) {
+void printLinkedList(LinkedList* list, int numVariables)
+{
     int i;
     
     Node* temp = list->head;
@@ -69,7 +75,29 @@ void printLinkedList(LinkedList* list, int numVariables) {
     return;
 }
 
-int countOnes(Node* node, int numVariables){
+int isInteger(char* token){
+    // Melakukan typecasting token menjadi float
+    double asFloat = atof(token);
+    // Melakukan typecasting token dalam float menjadi integer
+    int asInteger = (int)asFloat;
+    
+    // Jika token char
+    if((asInteger==0)&&(*token!='0')){
+        // Hasil atof() dari variabel char atau string mengembalikan 0
+        // Sehingga, token adalah char atau string jika bukan hanya berisi 0
+        return 0;
+    // Jika token float
+    } else if(asFloat!=asInteger){
+        // Nilai token adalah bilangan desimal jika tidak sama dengan pembulatannya
+        return 0;
+    // Jika token integer
+    } else{   
+        return 1;
+    }
+}
+
+int countOnes(Node* node, int numVariables)
+{
     int i;
     int sum = 0;    // variabel jumlah bit 1
     
@@ -84,7 +112,8 @@ int countOnes(Node* node, int numVariables){
     return sum;
 }
 
-void insertNode(LinkedList* list, Node* node){
+void insertNode(LinkedList* list, Node* node)
+{
     // Jika linked list kosong, assign node sebagai head
     if(list->head==NULL){
         list->head = node;
@@ -104,7 +133,8 @@ void insertNode(LinkedList* list, Node* node){
     return;
 }
 
-void saveMinterm(LinkedList* list, int numMinterms, int numVariables, int minterm){
+void saveMinterm(LinkedList* list, int numMinterms, int numVariables, int minterm)
+{
     int i;
     
     // Mengalokasikan memori node baru
@@ -142,7 +172,8 @@ void saveMinterm(LinkedList* list, int numMinterms, int numVariables, int minter
     return;
 }
 
-void groupByOnes(LinkedList* list, int numVariables){
+void groupByOnes(LinkedList* list, int numVariables)
+{
     int i;
     int temp;   // variabel sementara untuk pertukaran
     
@@ -186,7 +217,8 @@ void groupByOnes(LinkedList* list, int numVariables){
     return;
 }
 
-void displayImplicant(LinkedList* list, int numVariables){
+void displayImplicant(LinkedList* list, int numVariables)
+{
     int i;
     int numGroup = list->head->numOnes;   // variabel nomor baris, inisialisasi jumlah bit 1 implicant pertama
     
@@ -241,7 +273,8 @@ void displayImplicant(LinkedList* list, int numVariables){
     return;
 }
 
-void minimize(LinkedList* list, int numMinterms, int numVariables){
+void minimize(LinkedList* list, int numMinterms, int numVariables)
+{
     int i;
     int j;
     int simplified;     // variabel penanda adanya implicant yang disederhanakan
@@ -421,7 +454,8 @@ void minimize(LinkedList* list, int numMinterms, int numVariables){
     return;
 }
 
-void deleteDuplicate(LinkedList* list, int numVariables){
+void deleteDuplicate(LinkedList* list, int numVariables)
+{
     int i;
     int same;   // variabel penanda dua prime implicant sama
     
@@ -461,7 +495,8 @@ void deleteDuplicate(LinkedList* list, int numVariables){
     return;
 }
 
-int countPrimeImplicant(LinkedList* list){
+int countPrimeImplicant(LinkedList* list)
+{
     int count = 0;  // variabel penyimpan jumlah prime implicant
     
     // Membuat pointer sementara untuk menyusuri linked list
@@ -479,7 +514,8 @@ int countPrimeImplicant(LinkedList* list){
     return count;
 }
 
-void fillPrimeImplicant(LinkedList* list, int numMinterms, int numVariables, int* arrayMinterm, int* arrayPrimeImplicant){
+void fillPrimeImplicant(LinkedList* list, int numMinterms, int numVariables, int* arrayMinterm, int* arrayPrimeImplicant)
+{
     int i=0;
     int j;
     int k;
@@ -509,7 +545,8 @@ void fillPrimeImplicant(LinkedList* list, int numMinterms, int numVariables, int
     return;
 }
 
-void displayPrimeImplicant(LinkedList* list, int numMinterms, int numVariables, int* arrayMinterm, int* arrayPrimeImplicant){
+void displayPrimeImplicant(LinkedList* list, int numMinterms, int numVariables, int* arrayMinterm, int* arrayPrimeImplicant)
+{
     int i;
     int j;
     int k=0;
@@ -568,7 +605,8 @@ void displayPrimeImplicant(LinkedList* list, int numMinterms, int numVariables, 
     return;
 }
 
-void findEssential(LinkedList* list, int numMinterms, int numPrimeImplicant, int* arrayPrimeImplicant){
+void findEssential(LinkedList* list, int numMinterms, int numPrimeImplicant, int* arrayPrimeImplicant)
+{
     int i=0;
     int j;
     int k;
@@ -608,7 +646,8 @@ void findEssential(LinkedList* list, int numMinterms, int numPrimeImplicant, int
     return;
 }
 
-void printResult(LinkedList* list, int numVariables){
+void printResult(LinkedList* list, int numVariables)
+{
     int i;
     
     // Membuat pointer sementara untuk menyusuri linked list
@@ -644,12 +683,14 @@ int main()
 {
     int i;
     int j;
-    int numVariables;           // variabel penyimpan jumlah variabel
-    int numMinterms=0;          // variabel penyimpan jumlah minterm
+    int numVariables=0;         // variabel penyimpan jumlah variabel, inisialisasi 0
+    int numMinterms;            // variabel penyimpan jumlah minterm
+    char input[MAX];            // variabel untuk menyimpan input pengguna
     
     int* binary;                // array hasil konversi desimal ke biner
     int result;                 // variabel penyimpan input hasil truth table
     int* arrayResult;           // array penyimpan semua input hasil truth table
+    int tableOK=0;              // variabel indikator truth table sudah benar, inisialisasi 0
     
     int minterm;                // variabel penyimpan minterm input
     int* arrayMinterm;          // array penyimpan semua minterm input
@@ -663,11 +704,32 @@ int main()
     printf("Program ini dapat menyederhanakan\n");
     printf("persamaan boolean dari input truth table\n\n");
     
-    // Meminta input data
-    printf("Jumlah variabel adalah integer yang\n");
-    printf("lebih besar dari 0 dan kurang dari 27\n");
-    printf("Masukkan jumlah variabel: ");       
-    scanf("%d",&numVariables);
+    // Meminta input jumlah variabel   
+    // valdasi input jumlah variabel
+    do{
+        printf("Jumlah variabel adalah integer yang\n");
+        printf("lebih besar dari 0 dan kurang dari 27\n");
+        printf("Masukkan jumlah variabel: ");
+        fgets(input, MAX, stdin);
+        
+        // Jika input bukan integer
+        if(!isInteger(input)){
+            printf("Jumlah variabel harus integer.\n\n");
+         
+        // Jika input adalah integer
+        } else if(isInteger(input)){
+            numVariables = atoi(input);
+            
+            // Jika input terlalu besar
+            if(numVariables>26){
+                printf("Jumlah variabel terlalu besar.\n\n");
+            
+            // Jika input terlalu kecil
+            } else if(numVariables<1){
+                printf("Jumlah variabel terlalu kecil.\n\n");
+            }
+        }
+    } while((numVariables<1)||(numVariables>26)); 
     
     // Mengalokasikan memori array biner
     binary = malloc(numVariables*sizeof(int));
@@ -679,40 +741,84 @@ int main()
     LinkedList* mintermList = (LinkedList*) malloc(sizeof(LinkedList));
     mintermList->head = NULL;
     
-    // Menampilkan judul tabel
-    // menampilkan variabel
-    red();
-    printf("\nTruth Table\n");
-    reset();
-    for(i=0; i<numVariables; ++i){
-        printf("%c ", (char)91-(numVariables-i));
-    }
-    printf("| f");
-    printf("\n");
-    
-    // menampilkan pembatas
-    for(i=0; i<numVariables*2+3; ++i){
-        printf("=");
-    }
-    printf("\n");
-    
-    for(i=0; i<pow(2,numVariables); ++i){
-        int minterm = i;
-        for(j=numVariables-1; j>=0; --j){
-            binary[j] = minterm%2;
-            minterm = minterm/2;        
+    // Meminta input truth table hingga benar
+    while(1){
+        // Inisialisasi jumlah minterm nol
+        numMinterms = 0;
+        
+        // Menampilkan judul tabel
+        // menampilkan variabel
+        red();
+        printf("\nTruth Table\n");
+        reset();
+        for(i=0; i<numVariables; ++i){
+            printf("%c ", (char)91-(numVariables-i));
+        }
+        printf("| f");
+        printf("\n");
+        
+        // menampilkan pembatas
+        for(i=0; i<numVariables*2+3; ++i){
+            printf("=");
+        }
+        printf("\n");
+        
+        // meminta input hasil truth table
+        for(i=0; i<pow(2,numVariables); ++i){
+            
+            // Mencetak input truth table
+            minterm = i;
+            
+            // konversi integer menjadi biner
+            for(j=numVariables-1; j>=0; --j){
+                binary[j] = minterm%2;
+                minterm = minterm/2;        
+            }
+            
+            // mencetak input truth table dalam biner
+            for(j=0; j<numVariables; ++j){
+                printf("%d ", binary[j]);
+            }
+            printf("| ");
+            
+            // Meminta input
+            fgets(input, MAX, stdin);
+            
+            // Validasi input
+            // jika input bukan integer
+            if(!isInteger(input)){
+                printf("\nHasil truth table harus integer.\n");
+                break;
+         
+            // jika input adalah integer
+            } else if(isInteger(input)){
+                result = atoi(input);
+                
+                if((result!=0)&&(result!=1)){
+                    printf("\nHasil truth table harus 0 atau 1.\n");
+                    break;
+                }
+            }
+            
+            // Menyimpan input
+            arrayResult[i] = result;
+            
+            // Menambahkan jumlah minterm jika input sama dengan 1
+            if(result){
+                numMinterms += 1;
+            }
+            
+            // Jika tabel sudah terisi penuh,
+            if(i==pow(2,numVariables)-1){
+                // ubah nilai indikator
+                tableOK = 1;
+            }
         }
         
-        for(j=0; j<numVariables; ++j){
-            printf("%d ", binary[j]);
-        }
-        printf("| ");
-        
-        scanf("%d", &result);
-        arrayResult[i] = result;
-        
-        if(result){
-            numMinterms += 1;
+        // Jika tabel sudah terisi dengan benar, 
+        if(tableOK){
+            // keluar dari while loop
+            break;
         }
     }
     printf("\n");
@@ -793,3 +899,4 @@ int main()
     return 0;
     
 }
+
