@@ -235,12 +235,18 @@ int main()
 
 void red()
 {
+  // Mengatur warna font command line menjadi merah
   printf("\033[1;31m");
+  
+  return;
 }
 
 void reset()
 {
+  // Mengatur warna font command line menjadi default
   printf("\033[0m");
+  
+  return;
 }
 
 int isInteger(char* token)
@@ -267,7 +273,7 @@ int isInteger(char* token)
 
 int countOnes(Node* node, int numVariables)
 {
-    int i;
+    int i;          // variabel iterasi
     int sum = 0;    // variabel jumlah bit 1
     
     // Memeriksa semua bit
@@ -304,7 +310,7 @@ void insertNode(LinkedList* list, Node* node)
 
 void saveMinterm(LinkedList* list, int numMinterms, int numVariables, int minterm)
 {
-    int i;
+    int i;  // variabel iterasi
     
     // Mengalokasikan memori node baru
     Node* new = (Node*) malloc(sizeof(Node));
@@ -343,7 +349,7 @@ void saveMinterm(LinkedList* list, int numMinterms, int numVariables, int minter
 
 void groupByOnes(LinkedList* list, int numVariables)
 {
-    int i;
+    int i;      // variabel iterasi
     int temp;   // variabel sementara untuk pertukaran
     
     // Membuat pointer sementara untuk menyusuri linked list
@@ -388,8 +394,8 @@ void groupByOnes(LinkedList* list, int numVariables)
 
 void displayImplicant(LinkedList* list, int numVariables)
 {
-    int i;
-    int numGroup = list->head->numOnes;   // variabel nomor baris, inisialisasi jumlah bit 1 implicant pertama
+    int i;                                  // variabel iterasi
+    int numGroup = list->head->numOnes;     // variabel nomor baris, inisialisasi jumlah bit 1 implicant pertama
     
     // Membuat pointer sementara untuk menyusuri linked list
     Node* temp = list->head;    
@@ -444,14 +450,13 @@ void displayImplicant(LinkedList* list, int numVariables)
 
 void minimize(LinkedList* list, int numMinterms, int numVariables)
 {
-    int i;
-    int j;
+    int i;              // variabel iterasi
+    int j;              // variabel iterasi
     int simplified;     // variabel penanda adanya implicant yang disederhanakan
     int notSimplified;  // variabel penanda adanya implicant yang tidak disederhanakan
     int idxChange;      // variabel indeks bit yang berubah
     int sumChange;      // variabel jumlah perubahan
-    
-    int step=1;         // debugging
+    int step=1;         // variabel tahap penyederhanaan, inisialisasi 1
     
     while(simplified){
         // Menginisialisasi penanda
@@ -616,6 +621,7 @@ void minimize(LinkedList* list, int numMinterms, int numVariables)
             reset();
             displayImplicant(list, numVariables);
             
+            // Menambahkan jumlah 
             step += 1;
         }
     }
@@ -625,7 +631,7 @@ void minimize(LinkedList* list, int numMinterms, int numVariables)
 
 void deleteDuplicate(LinkedList* list, int numVariables)
 {
-    int i;
+    int i;      // variabel iterasi
     int same;   // variabel penanda dua prime implicant sama
     
     // Membuat pointer sementara untuk menyusuri linked list
@@ -685,9 +691,9 @@ int countPrimeImplicant(LinkedList* list)
 
 void fillPrimeImplicant(LinkedList* list, int numMinterms, int numVariables, int* arrayMinterm, int* arrayPrimeImplicant)
 {
-    int i=0;
-    int j;
-    int k;
+    int i=0;        // variabel indeks, inisialisasi 0
+    int j;          // variabel indeks
+    int k;          // variabel indeks
     
     // Membuat pointer sementara untuk menyusuri linked list
     Node* temp = list->head;
@@ -716,9 +722,8 @@ void fillPrimeImplicant(LinkedList* list, int numMinterms, int numVariables, int
 
 void displayPrimeImplicant(LinkedList* list, int numMinterms, int numVariables, int* arrayMinterm, int* arrayPrimeImplicant)
 {
-    int i;
-    int j;
-    int k=0;
+    int i;      // variabel iterasi
+    int j;      // variabel iterasi  
     
     // Membuat pointer sementara untuk menyusuri linked list
     Node* temp = list->head;
@@ -733,6 +738,7 @@ void displayPrimeImplicant(LinkedList* list, int numMinterms, int numVariables, 
     // Mencetak judul tabel
     printf("\tMinterms\n");
     
+    // Mencetak pembatas tabel
     for(i=0; i<numMinterms*11; ++i){
         printf("=");
     }
@@ -758,14 +764,13 @@ void displayPrimeImplicant(LinkedList* list, int numMinterms, int numVariables, 
             printf(",%d", temp->mintermDec[i]);
             i += 1;
         }
-        
         printf("\n");
-        
-        k += 1;
         
         // Melanjutkan perbandingan ke node berikutnya        
         temp = temp->next;
     }
+    
+    // Mencetak pembatas tabel
     for(i=0; i<numMinterms*11; ++i){
         printf("=");
     }
@@ -776,11 +781,11 @@ void displayPrimeImplicant(LinkedList* list, int numMinterms, int numVariables, 
 
 void findEssential(LinkedList* list, int numMinterms, int numPrimeImplicant, int* arrayPrimeImplicant)
 {
-    int i=0;
-    int j;
-    int k;
-    int count;
-    int isEssential;
+    int i=0;            // variabel indeks, inisialisasi 0
+    int j;              // variabel indeks
+    int k;              // variabel indeks
+    int count;          // variabel jumlah minterm yang ditangani suatu prime implicant
+    int isEssential;    // variabel indikator apakah suatu prime implicant esensial
     
     // Membuat pointer sementara untuk menyusuri linked list
     Node* temp = list->head;
@@ -806,6 +811,7 @@ void findEssential(LinkedList* list, int numMinterms, int numPrimeImplicant, int
             }
         }
         
+        // Menambahkan indeks
         i += 1;
         
         // Melanjutkan perbandingan ke node berikutnya        
@@ -817,7 +823,7 @@ void findEssential(LinkedList* list, int numMinterms, int numPrimeImplicant, int
 
 void printResult(LinkedList* list, int numVariables)
 {
-    int i;
+    int i;  // variabel iterasi
     
     // Membuat pointer sementara untuk menyusuri linked list
     Node* temp = list->head;
@@ -826,6 +832,7 @@ void printResult(LinkedList* list, int numVariables)
     while(temp!=NULL){
         // Jika prime implicant adalah essential
         if(temp->isImplicant==1){
+            // Menampilkan minterm dalam huruf variabel
             for(i=0; i<numVariables; ++i){
                 if(temp->mintermBin[i]==1){
                     printf("%c", (char)91-(numVariables-i));
@@ -834,6 +841,7 @@ void printResult(LinkedList* list, int numVariables)
                 }
             }
             
+            // Menampilkan tanda tambah diantara minterm
             if(temp->next!=NULL){
                 printf(" + ");
             }

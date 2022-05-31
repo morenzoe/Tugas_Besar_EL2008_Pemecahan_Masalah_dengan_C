@@ -162,7 +162,7 @@ void displayPrimeImplicant(LinkedList* list, int numMinterms, int numVariables, 
  * @param numMinterms : jumlah minterm persamaan boolean
  * @param numPrimeImplicant : jumlah prime implicant hasil penyederhanaan
  * @param arrayPrimeImplicant : matriks penyimpan semua prime implicant dan mintermnya
- * @result isImplicant di dalam node di dalam list berisi info apakah prime implicant essential atau tidak
+ * @result isImplicant di dalam node di dalam list berisi info apakah prime implicant esensial atau tidak
  */
 void findEssential(LinkedList* list, int numMinterms, int numPrimeImplicant, int* arrayPrimeImplicant);
 
