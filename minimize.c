@@ -10,24 +10,228 @@
 *                     dan mengembalikan persamaan hasil penyederhanaan.
 */
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <math.h>
+#include "minimize.h"
 
-#define MAX 255         // ukuran maksimal string input 
-
-typedef struct Node{
-    int* mintermDec;    // minterm dalam desimal
-    int* mintermBin;    // minterm dalam  biner
-    int numOnes;        // jumlah bit 1 minterm biner
-    int isImplicant;    // indikator minterm implicant, 1 atau 0
-    struct Node* next;  // pointer ke node berikutnya
-} Node;
-
-typedef struct LinkedList{
-    Node* head; // pointer ke node pertama linked list
-} LinkedList;
+int main()
+{
+    int i;                      // variabel iterasi
+    int j;                      // variabel iterasi
+    int numVariables=0;         // variabel penyimpan jumlah variabel, inisialisasi 0
+    int numMinterms;            // variabel penyimpan jumlah minterm
+    char input[MAX];            // variabel untuk menyimpan input pengguna
+    
+    int* binary;                // array hasil konversi desimal ke biner
+    int result;                 // variabel penyimpan input hasil truth table
+    int* arrayResult;           // array penyimpan semua input hasil truth table
+    int tableOK=0;              // variabel indikator truth table sudah benar, inisialisasi 0
+    
+    int minterm;                // variabel penyimpan minterm input
+    int* arrayMinterm;          // array penyimpan semua minterm input
+    int numPrimeImplicant;      // variabel penyimpan jumlah prime implicant
+    int* arrayPrimeImplicant;   // matriks penyimpan semua prime implicant dan mintermnya    
+    
+    // Mencetak informasi awal
+    red();
+    printf("Selamat datang di Algebra Boolean Calculator!\n\n");
+    reset();
+    printf("Program ini dapat menyederhanakan\n");
+    printf("persamaan boolean dari input truth table\n\n");
+    
+    // Meminta input jumlah variabel   
+    // valdasi input jumlah variabel
+    do{
+        printf("Jumlah variabel adalah integer yang\n");
+        printf("lebih besar dari 0 dan kurang dari 27\n");
+        printf("Masukkan jumlah variabel: ");
+        fgets(input, MAX, stdin);
+        
+        // Jika input bukan integer
+        if(!isInteger(input)){
+            printf("Jumlah variabel harus integer.\n\n");
+         
+        // Jika input adalah integer
+        } else if(isInteger(input)){
+            numVariables = atoi(input);
+            
+            // Jika input terlalu besar
+            if(numVariables>26){
+                printf("Jumlah variabel terlalu besar.\n\n");
+            
+            // Jika input terlalu kecil
+            } else if(numVariables<1){
+                printf("Jumlah variabel terlalu kecil.\n\n");
+            }
+        }
+    } while((numVariables<1)||(numVariables>26)); 
+    
+    // Mengalokasikan memori array biner
+    binary = malloc(numVariables*sizeof(int));
+    
+    // Mengalokasikan memori array result
+    arrayResult = malloc(pow(2,numVariables)*sizeof(int));
+    
+    // Membuat linked list untuk menyimpan minterm
+    LinkedList* mintermList = (LinkedList*) malloc(sizeof(LinkedList));
+    mintermList->head = NULL;
+    
+    // Meminta input truth table hingga benar
+    while(1){
+        // Inisialisasi jumlah minterm nol
+        numMinterms = 0;
+        
+        // Menampilkan judul tabel
+        // menampilkan variabel
+        red();
+        printf("\nTruth Table\n");
+        reset();
+        for(i=0; i<numVariables; ++i){
+            printf("%c ", (char)91-(numVariables-i));
+        }
+        printf("| f");
+        printf("\n");
+        
+        // menampilkan pembatas
+        for(i=0; i<numVariables*2+3; ++i){
+            printf("=");
+        }
+        printf("\n");
+        
+        // meminta input hasil truth table
+        for(i=0; i<pow(2,numVariables); ++i){
+            
+            // Mencetak input truth table
+            minterm = i;
+            
+            // konversi integer menjadi biner
+            for(j=numVariables-1; j>=0; --j){
+                binary[j] = minterm%2;
+                minterm = minterm/2;        
+            }
+            
+            // mencetak input truth table dalam biner
+            for(j=0; j<numVariables; ++j){
+                printf("%d ", binary[j]);
+            }
+            printf("| ");
+            
+            // Meminta input
+            fgets(input, MAX, stdin);
+            
+            // Validasi input
+            // jika input bukan integer
+            if(!isInteger(input)){
+                printf("\nHasil truth table harus integer.\n");
+                break;
+         
+            // jika input adalah integer
+            } else if(isInteger(input)){
+                result = atoi(input);
+                
+                if((result!=0)&&(result!=1)){
+                    printf("\nHasil truth table harus 0 atau 1.\n");
+                    break;
+                }
+            }
+            
+            // Menyimpan input
+            arrayResult[i] = result;
+            
+            // Menambahkan jumlah minterm jika input sama dengan 1
+            if(result){
+                numMinterms += 1;
+            }
+            
+            // Jika tabel sudah terisi penuh,
+            if(i==pow(2,numVariables)-1){
+                // ubah nilai indikator
+                tableOK = 1;
+            }
+        }
+        
+        // Jika tabel sudah terisi dengan benar, 
+        if(tableOK){
+            // keluar dari while loop
+            break;
+        }
+    }
+    printf("\n");
+    
+    // Jika minterm sebanyak baris truth table
+    if(numMinterms==pow(2,numVariables)){
+        red();
+        printf("Hasil Akhir Penyederhanaan\n");
+        reset();
+        printf("1\n");
+        
+        return 0;
+        
+    // Jika tidak ada minterm
+    } else if(numMinterms==0){
+        red();
+        printf("Hasil Akhir Penyederhanaan\n");
+        reset();
+        printf("0\n");
+        
+        return 0;
+    }
+    
+    // Meminta input minterm dalam desimal
+    // asumsi input terurut dari minterm terkecil
+    arrayMinterm =  malloc(numMinterms*sizeof(int));
+    j =0;
+    for(i=0; i<pow(2,numVariables); ++i){
+        if(arrayResult[i]){
+            
+            // Menyimpan minterm ke array
+            arrayMinterm[j] = i;
+            
+            // Menyimpan minterm ke mintermList
+            saveMinterm(mintermList, numMinterms, numVariables, i);
+            
+            j += 1;
+        }
+    }
+    
+    // Mengurutkan mintermList berdasarkan jumlah bit 1 minterm dalam biner
+    groupByOnes(mintermList, numVariables);
+    
+    // Menampilkan tabel minterm sebelum penyederhanaan
+    red();
+    printf("Tabel Hasil Pengelompokkan\n");
+    reset();
+    displayImplicant(mintermList, numVariables);
+    
+    // Melakukan penyederhanaan dengan Quine-McCluskey Tabular Method
+    minimize(mintermList, numMinterms, numVariables);
+       
+    // Menghapus prime implicant duplikat
+    deleteDuplicate(mintermList, numVariables);
+    
+    // Menghitung jumlah prime implicant
+    numPrimeImplicant = countPrimeImplicant(mintermList);
+    
+    // Mengisi tabel prime implicant
+    arrayPrimeImplicant = malloc(numMinterms*numPrimeImplicant*sizeof(int));
+    fillPrimeImplicant(mintermList, numMinterms, numVariables, arrayMinterm, arrayPrimeImplicant);
+    
+    // Menampilkan tabel prime implicant
+    red();
+    printf("Tabel Implikan Prima\n");
+    reset();
+    displayPrimeImplicant(mintermList, numMinterms, numVariables, arrayMinterm, arrayPrimeImplicant);
+    
+    // Mencari essential prime implicant
+    findEssential(mintermList, numMinterms, numPrimeImplicant, arrayPrimeImplicant);
+    
+    // Mencetak hasil akhir penyederhanaan
+    red();
+    printf("\nHasil Akhir Penyederhanaan\n");
+    reset();
+    printResult(mintermList, numVariables);
+    
+    return 0;
+    
+}
 
 void red()
 {
@@ -75,7 +279,8 @@ void printLinkedList(LinkedList* list, int numVariables)
     return;
 }
 
-int isInteger(char* token){
+int isInteger(char* token)
+{
     // Melakukan typecasting token menjadi float
     double asFloat = atof(token);
     // Melakukan typecasting token dalam float menjadi integer
@@ -678,225 +883,3 @@ void printResult(LinkedList* list, int numVariables)
     
     return;
 }
-
-int main()
-{
-    int i;
-    int j;
-    int numVariables=0;         // variabel penyimpan jumlah variabel, inisialisasi 0
-    int numMinterms;            // variabel penyimpan jumlah minterm
-    char input[MAX];            // variabel untuk menyimpan input pengguna
-    
-    int* binary;                // array hasil konversi desimal ke biner
-    int result;                 // variabel penyimpan input hasil truth table
-    int* arrayResult;           // array penyimpan semua input hasil truth table
-    int tableOK=0;              // variabel indikator truth table sudah benar, inisialisasi 0
-    
-    int minterm;                // variabel penyimpan minterm input
-    int* arrayMinterm;          // array penyimpan semua minterm input
-    int numPrimeImplicant;      // variabel penyimpan jumlah prime implicant
-    int* arrayPrimeImplicant;   // matriks penyimpan semua prime implicant dan mintermnya    
-    
-    // Mencetak informasi awal
-    red();
-    printf("Selamat datang di Algebra Boolean Calculator!\n\n");
-    reset();
-    printf("Program ini dapat menyederhanakan\n");
-    printf("persamaan boolean dari input truth table\n\n");
-    
-    // Meminta input jumlah variabel   
-    // valdasi input jumlah variabel
-    do{
-        printf("Jumlah variabel adalah integer yang\n");
-        printf("lebih besar dari 0 dan kurang dari 27\n");
-        printf("Masukkan jumlah variabel: ");
-        fgets(input, MAX, stdin);
-        
-        // Jika input bukan integer
-        if(!isInteger(input)){
-            printf("Jumlah variabel harus integer.\n\n");
-         
-        // Jika input adalah integer
-        } else if(isInteger(input)){
-            numVariables = atoi(input);
-            
-            // Jika input terlalu besar
-            if(numVariables>26){
-                printf("Jumlah variabel terlalu besar.\n\n");
-            
-            // Jika input terlalu kecil
-            } else if(numVariables<1){
-                printf("Jumlah variabel terlalu kecil.\n\n");
-            }
-        }
-    } while((numVariables<1)||(numVariables>26)); 
-    
-    // Mengalokasikan memori array biner
-    binary = malloc(numVariables*sizeof(int));
-    
-    // Mengalokasikan memori array result
-    arrayResult = malloc(pow(2,numVariables)*sizeof(int));
-    
-    // Membuat linked list untuk menyimpan minterm
-    LinkedList* mintermList = (LinkedList*) malloc(sizeof(LinkedList));
-    mintermList->head = NULL;
-    
-    // Meminta input truth table hingga benar
-    while(1){
-        // Inisialisasi jumlah minterm nol
-        numMinterms = 0;
-        
-        // Menampilkan judul tabel
-        // menampilkan variabel
-        red();
-        printf("\nTruth Table\n");
-        reset();
-        for(i=0; i<numVariables; ++i){
-            printf("%c ", (char)91-(numVariables-i));
-        }
-        printf("| f");
-        printf("\n");
-        
-        // menampilkan pembatas
-        for(i=0; i<numVariables*2+3; ++i){
-            printf("=");
-        }
-        printf("\n");
-        
-        // meminta input hasil truth table
-        for(i=0; i<pow(2,numVariables); ++i){
-            
-            // Mencetak input truth table
-            minterm = i;
-            
-            // konversi integer menjadi biner
-            for(j=numVariables-1; j>=0; --j){
-                binary[j] = minterm%2;
-                minterm = minterm/2;        
-            }
-            
-            // mencetak input truth table dalam biner
-            for(j=0; j<numVariables; ++j){
-                printf("%d ", binary[j]);
-            }
-            printf("| ");
-            
-            // Meminta input
-            fgets(input, MAX, stdin);
-            
-            // Validasi input
-            // jika input bukan integer
-            if(!isInteger(input)){
-                printf("\nHasil truth table harus integer.\n");
-                break;
-         
-            // jika input adalah integer
-            } else if(isInteger(input)){
-                result = atoi(input);
-                
-                if((result!=0)&&(result!=1)){
-                    printf("\nHasil truth table harus 0 atau 1.\n");
-                    break;
-                }
-            }
-            
-            // Menyimpan input
-            arrayResult[i] = result;
-            
-            // Menambahkan jumlah minterm jika input sama dengan 1
-            if(result){
-                numMinterms += 1;
-            }
-            
-            // Jika tabel sudah terisi penuh,
-            if(i==pow(2,numVariables)-1){
-                // ubah nilai indikator
-                tableOK = 1;
-            }
-        }
-        
-        // Jika tabel sudah terisi dengan benar, 
-        if(tableOK){
-            // keluar dari while loop
-            break;
-        }
-    }
-    printf("\n");
-    
-    // Jika minterm sebanyak baris truth table
-    if(numMinterms==pow(2,numVariables)){
-        red();
-        printf("Hasil Akhir Penyederhanaan\n");
-        reset();
-        printf("1\n");
-        
-        return 0;
-        
-    // Jika tidak ada minterm
-    } else if(numMinterms==0){
-        red();
-        printf("Hasil Akhir Penyederhanaan\n");
-        reset();
-        printf("0\n");
-        
-        return 0;
-    }
-    
-    // Meminta input minterm dalam desimal
-    // asumsi input terurut dari minterm terkecil
-    arrayMinterm =  malloc(numMinterms*sizeof(int));
-    j =0;
-    for(i=0; i<pow(2,numVariables); ++i){
-        if(arrayResult[i]){
-            
-            // Menyimpan minterm ke array
-            arrayMinterm[j] = i;
-            
-            // Menyimpan minterm ke mintermList
-            saveMinterm(mintermList, numMinterms, numVariables, i);
-            
-            j += 1;
-        }
-    }
-    
-    // Mengurutkan mintermList berdasarkan jumlah bit 1 minterm dalam biner
-    groupByOnes(mintermList, numVariables);
-    
-    // Menampilkan tabel minterm sebelum penyederhanaan
-    red();
-    printf("Tabel Hasil Pengelompokkan\n");
-    reset();
-    displayImplicant(mintermList, numVariables);
-    
-    // Melakukan penyederhanaan dengan Quine-McCluskey Tabular Method
-    minimize(mintermList, numMinterms, numVariables);
-       
-    // Menghapus prime implicant duplikat
-    deleteDuplicate(mintermList, numVariables);
-    
-    // Menghitung jumlah prime implicant
-    numPrimeImplicant = countPrimeImplicant(mintermList);
-    
-    // Mengisi tabel prime implicant
-    arrayPrimeImplicant = malloc(numMinterms*numPrimeImplicant*sizeof(int));
-    fillPrimeImplicant(mintermList, numMinterms, numVariables, arrayMinterm, arrayPrimeImplicant);
-    
-    // Menampilkan tabel prime implicant
-    red();
-    printf("Tabel Implikan Prima\n");
-    reset();
-    displayPrimeImplicant(mintermList, numMinterms, numVariables, arrayMinterm, arrayPrimeImplicant);
-    
-    // Mencari essential prime implicant
-    findEssential(mintermList, numMinterms, numPrimeImplicant, arrayPrimeImplicant);
-    
-    // Mencetak hasil akhir penyederhanaan
-    red();
-    printf("\nHasil Akhir Penyederhanaan\n");
-    reset();
-    printResult(mintermList, numVariables);
-    
-    return 0;
-    
-}
-
